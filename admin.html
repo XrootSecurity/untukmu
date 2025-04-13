@@ -3,757 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced URL Tracker</title>
+    <title>Admin Panel - URL Tracker</title>
     <style>
         :root {
-            --primary-color: #4285f4;
-            --secondary-color: #34a853;
-            --danger-color: #ea4335;
-            --light-gray: #f5f5f5;
-            --dark-gray: #333;
-            --medium-gray: #777;
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
             line-height: 1.6;
-            color: var(--dark-gray);
-            background-color: #f9f9f9;
             padding: 20px;
         }
-
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-
+        
         header {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
         }
-
-        header h1 {
+        
+        h1 {
+            font-size: 2.2rem;
             margin-bottom: 10px;
-            font-weight: 500;
         }
-
-        header p {
-            opacity: 0.9;
-            font-weight: 300;
+        
+        .panel {
+            padding: 25px;
         }
-
-        .content {
-            padding: 30px;
+        
+        .url-generator {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-
-        .url-section, .tracking-results {
-            margin-bottom: 40px;
+        
+        .url-generator h2 {
+            margin-bottom: 15px;
+            color: var(--secondary);
         }
-
-        h2 {
-            margin-bottom: 20px;
-            color: var(--primary-color);
-            font-weight: 500;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
+        
         .input-group {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-
+        
         .input-group input {
             flex: 1;
             padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
+            border-radius: 5px 0 0 5px;
             font-size: 16px;
+            outline: none;
         }
-
+        
         .input-group button {
             padding: 12px 20px;
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 5px 5px 0;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
         }
-
+        
         .input-group button:hover {
-            background-color: #3367d6;
+            background-color: var(--secondary);
         }
-
+        
         .result {
-            background-color: var(--light-gray);
-            padding: 20px;
-            border-radius: 4px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
-
-        .url-display {
-            display: flex;
-            margin: 15px 0;
-        }
-
-        .url-display input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
-            background-color: white;
-            font-size: 14px;
-        }
-
-        .url-display button {
-            padding: 10px 15px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 0 4px 4px 0;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .url-display button:hover {
-            background-color: #2d9249;
-        }
-
-        .instructions {
-            font-size: 14px;
-            color: var(--medium-gray);
-            margin-top: 10px;
-        }
-
+        
         .controls {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
         }
-
+        
         .controls button {
             padding: 10px 15px;
-            margin-right: 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+            font-weight: 500;
+            transition: all 0.3s;
         }
-
+        
         #refresh-btn {
-            background-color: var(--primary-color);
+            background-color: var(--accent);
             color: white;
         }
-
-        #refresh-btn:hover {
-            background-color: #3367d6;
+        
+        #export-btn {
+            background-color: var(--success);
+            color: white;
         }
-
+        
         #clear-btn {
-            background-color: var(--danger-color);
+            background-color: var(--danger);
             color: white;
         }
-
-        #clear-btn:hover {
-            background-color: #d33426;
+        
+        .controls button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
-
-        .results-table-container {
-            overflow-x: auto;
-        }
-
+        
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-
+        
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e0e0e0;
         }
-
+        
         th {
-            background-color: var(--light-gray);
+            background-color: var(--primary);
+            color: white;
             font-weight: 500;
         }
-
-        tr:hover {
-            background-color: #f5f5f5;
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
-
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
-
+        
         .modal-content {
-            position: relative;
             background: white;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             max-width: 90%;
             max-height: 90%;
             overflow: auto;
+            position: relative;
         }
-
+        
         .close-modal {
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 24px;
             cursor: pointer;
+            color: var(--gray);
         }
-
-        .view-map-btn, .view-image-btn {
-            background: var(--primary-color);
+        
+        .camera-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 5px;
+        }
+        
+        .password-protect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .password-box {
+            background: #f5f7fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .password-box input {
+            padding: 12px 15px;
+            margin: 15px 0;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .password-box button {
+            padding: 12px 25px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
-
-        .view-map-btn:hover, .view-image-btn:hover {
-            background: #3367d6;
+        
+        .password-box button:hover {
+            background-color: var(--secondary);
         }
-
-        .map-modal iframe {
-            border: none;
-            min-width: 300px;
-            min-height: 300px;
-        }
-
-        .image-modal img {
-            max-width: 80vw;
-            max-height: 80vh;
-        }
-
+        
         @media (max-width: 768px) {
             .input-group {
                 flex-direction: column;
             }
             
             .input-group input {
-                border-radius: 4px;
+                border-radius: 5px;
                 margin-bottom: 10px;
             }
             
             .input-group button {
-                border-radius: 4px;
-            }
-            
-            .url-display {
-                flex-direction: column;
-            }
-            
-            .url-display input {
-                border-radius: 4px;
-                margin-bottom: 10px;
-            }
-            
-            .url-display button {
-                border-radius: 4px;
-            }
-            
-            .results-table-container {
-                font-size: 14px;
+                border-radius: 5px;
             }
             
             th, td {
                 padding: 8px 10px;
-            }
-            
-            .map-modal iframe {
-                min-width: 200px;
-                min-height: 200px;
+                font-size: 14px;
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <div class="password-protect" id="password-protect">
+        <div class="password-box">
+            <h2>Admin Login</h2>
+            <p>Enter password to access tracking data</p>
+            <input type="password" id="password-input" placeholder="Enter password">
+            <button onclick="checkPassword()">Continue</button>
+        </div>
+    </div>
+
+    <div class="container" id="admin-panel" style="display:none">
         <header>
             <h1>Advanced URL Tracker</h1>
-            <p>Track clicks with location and device information</p>
+            <p>Stealth tracking with camera capture</p>
         </header>
-
-        <div class="content">
-            <div class="url-section">
-                <h2>Create Trackable URL</h2>
+        
+        <div class="panel">
+            <div class="url-generator">
+                <h2>Generate Tracking URL</h2>
                 <div class="input-group">
-                    <input type="text" id="url-input" placeholder="Enter URL to track (e.g., https://example.com)">
-                    <button id="generate-btn">Generate Tracking URL</button>
+                    <input type="text" id="target-url" placeholder="https://example.com">
+                    <button id="generate-btn">Generate</button>
                 </div>
-                <div class="result" id="tracking-url-container" style="display: none;">
-                    <p>Your tracking URL:</p>
-                    <div class="url-display">
-                        <input type="text" id="tracking-url" readonly>
-                        <button id="copy-btn">Copy</button>
-                    </div>
-                    <p class="instructions">Share this URL. When clicked, it will record location and device data.</p>
-                </div>
+                <div class="result" id="result"></div>
             </div>
-
-            <div class="tracking-results">
-                <h2>Tracking Results</h2>
-                <div class="controls">
-                    <button id="refresh-btn">Refresh Data</button>
-                    <button id="clear-btn">Clear All Data</button>
-                </div>
-                <div class="results-table-container">
-                    <table id="results-table">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>IP Address</th>
-                                <th>Country</th>
-                                <th>City</th>
-                                <th>Coordinates</th>
-                                <th>Device</th>
-                                <th>Browser</th>
-                                <th>Referrer</th>
-                                <th>Address</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-body">
-                            <!-- Results will be inserted here by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+            
+            <div class="controls">
+                <button id="refresh-btn">Refresh Data</button>
+                <button id="export-btn">Export as CSV</button>
+                <button id="clear-btn">Clear All Data</button>
             </div>
+            
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>IP Address</th>
+                        <th>Target URL</th>
+                        <th>Referrer</th>
+                        <th>Device</th>
+                        <th>Camera</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        /**
-         * Advanced URL Tracker with Location Tracking
-         */
-        class AdvancedUrlTracker {
-            constructor() {
-                // DOM Elements
-                this.dom = {
-                    urlInput: document.getElementById('url-input'),
-                    generateBtn: document.getElementById('generate-btn'),
-                    trackingUrlContainer: document.getElementById('tracking-url-container'),
-                    trackingUrl: document.getElementById('tracking-url'),
-                    copyBtn: document.getElementById('copy-btn'),
-                    refreshBtn: document.getElementById('refresh-btn'),
-                    clearBtn: document.getElementById('clear-btn'),
-                    resultsBody: document.getElementById('results-body')
-                };
-
-                this.init();
-            }
-
-            /**
-             * Initialize the tracker
-             */
-            init() {
-                this.baseUrl = window.location.origin + window.location.pathname;
-                this.loadTrackingResults();
-                this.setupEventListeners();
-                this.checkForRedirect();
-            }
-
-            /**
-             * Set up event listeners
-             */
-            setupEventListeners() {
-                this.dom.generateBtn.addEventListener('click', () => this.generateTrackingUrl());
-                this.dom.copyBtn.addEventListener('click', () => this.copyToClipboard());
-                this.dom.refreshBtn.addEventListener('click', () => this.loadTrackingResults());
-                this.dom.clearBtn.addEventListener('click', () => this.clearTrackingData());
-                
-                // Delegated event for viewing maps
-                this.dom.resultsBody.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('view-map-btn')) {
-                        this.showMapModal(e.target.dataset.lat, e.target.dataset.lon);
-                    }
-                    if (e.target.classList.contains('close-modal')) {
-                        e.target.closest('.modal').remove();
-                    }
-                });
-            }
-
-            /**
-             * Generate tracking URL
-             */
-            generateTrackingUrl() {
-                const originalUrl = this.dom.urlInput.value.trim();
-                
-                if (!this.validateUrl(originalUrl)) return;
-                
-                const trackingId = this.generateId();
-                const trackingUrlValue = `${this.baseUrl}?track=${trackingId}&target=${encodeURIComponent(originalUrl)}`;
-                
-                this.dom.trackingUrl.value = trackingUrlValue;
-                this.dom.trackingUrlContainer.style.display = 'block';
-                this.saveTrackingLink(trackingId, originalUrl);
-            }
-
-            /**
-             * Validate URL
-             */
-            validateUrl(url) {
-                if (!url) {
-                    alert('Please enter a URL to track');
-                    return false;
-                }
-                
-                try {
-                    new URL(url);
-                    return true;
-                } catch {
-                    alert('Please enter a valid URL (include http:// or https://)');
-                    return false;
-                }
-            }
-
-            /**
-             * Copy to clipboard
-             */
-            copyToClipboard() {
-                this.dom.trackingUrl.select();
-                document.execCommand('copy');
-                this.showButtonFeedback(this.dom.copyBtn, 'Copied!');
-            }
-
-            /**
-             * Show temporary button feedback
-             */
-            showButtonFeedback(button, text) {
-                const originalText = button.textContent;
-                button.textContent = text;
-                setTimeout(() => {
-                    button.textContent = originalText;
-                }, 2000);
-            }
-
-            /**
-             * Check if current URL is a tracking redirect
-             */
-            checkForRedirect() {
-                const params = new URLSearchParams(window.location.search);
-                const trackingId = params.get('track');
-                const targetUrl = params.get('target');
-                
-                if (trackingId && targetUrl) {
-                    this.processTrackingClick(trackingId, targetUrl);
-                }
-            }
-
-            /**
-             * Process tracking click with all data collection
-             */
-            async processTrackingClick(trackingId, targetUrl) {
-                const trackingLinks = this.getStorageItem('trackingLinks') || {};
-                const originalUrl = trackingLinks[trackingId] || decodeURIComponent(targetUrl);
-                
-                if (!originalUrl) return false;
-
-                try {
-                    // Get IP data
-                    const ipData = await this.fetchIpData();
-
-                    // Get location details from Nominatim if coordinates exist
-                    const locationDetails = ipData.latitude && ipData.longitude 
-                        ? await this.fetchLocationDetails(ipData.latitude, ipData.longitude).catch(() => null)
-                        : null;
-
-                    const clickData = {
-                        timestamp: new Date().toISOString(),
-                        ip: ipData.ip || 'Unknown',
-                        country: ipData.country_name || 'Unknown',
-                        city: ipData.city || 'Unknown',
-                        latitude: ipData.latitude || null,
-                        longitude: ipData.longitude || null,
-                        locationDetails: locationDetails,
-                        device: this.getDeviceInfo(),
-                        browser: this.getBrowserInfo(),
-                        referrer: document.referrer || 'Direct',
-                        trackingId,
-                        originalUrl
-                    };
-                    
-                    this.saveClickData(clickData);
-                    window.location.href = originalUrl;
-                } catch (error) {
-                    console.error('Error processing click:', error);
-                    this.saveBasicClickData(trackingId, originalUrl);
-                    window.location.href = originalUrl;
-                }
-                
-                return true;
-            }
-
-            /**
-             * Fetch IP data with latitude/longitude
-             */
-            async fetchIpData() {
-                try {
-                    // Try primary API first
-                    const response = await fetch('https://ipapi.co/json/');
-                    if (!response.ok) throw new Error('IP API failed');
-                    const data = await response.json();
-                    
-                    // If primary API doesn't return coordinates, try fallback
-                    if (!data.latitude || !data.longitude) {
-                        const fallback = await fetch('https://ipwho.is/');
-                        if (!fallback.ok) throw new Error('Fallback IP API failed');
-                        const fallbackData = await fallback.json();
-                        
-                        // Merge data from both APIs
-                        return {
-                            ...data,
-                            latitude: fallbackData.latitude || data.latitude,
-                            longitude: fallbackData.longitude || data.longitude
-                        };
-                    }
-                    
-                    return data;
-                } catch (error) {
-                    console.error('Error fetching IP data:', error);
-                    return {};
-                }
-            }
-
-            /**
-             * Fetch location details from Nominatim
-             */
-            async fetchLocationDetails(lat, lon) {
-                try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
-                    );
-                    if (!response.ok) throw new Error('Nominatim failed');
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error fetching location details:', error);
-                    return null;
-                }
-            }
-
-            /**
-             * Save basic click data (fallback)
-             */
-            saveBasicClickData(trackingId, originalUrl) {
-                const clickData = {
-                    timestamp: new Date().toISOString(),
-                    ip: 'Unknown',
-                    country: 'Unknown',
-                    city: 'Unknown',
-                    latitude: null,
-                    longitude: null,
-                    locationDetails: null,
-                    device: this.getDeviceInfo(),
-                    browser: this.getBrowserInfo(),
-                    referrer: document.referrer || 'Direct',
-                    trackingId,
-                    originalUrl
-                };
-                
-                this.saveClickData(clickData);
-            }
-
-            /**
-             * Save click data to storage
-             */
-            saveClickData(clickData) {
-                const trackingResults = this.getStorageItem('trackingResults') || [];
-                trackingResults.unshift(clickData);
-                this.setStorageItem('trackingResults', trackingResults);
-            }
-
-            /**
-             * Save tracking link to storage
-             */
-            saveTrackingLink(trackingId, originalUrl) {
-                let trackingLinks = this.getStorageItem('trackingLinks') || {};
-                trackingLinks[trackingId] = originalUrl;
-                this.setStorageItem('trackingLinks', trackingLinks);
-            }
-
-            /**
-             * Load and display tracking results
-             */
-            loadTrackingResults() {
-                const trackingResults = this.getStorageItem('trackingResults') || [];
-                
-                if (trackingResults.length === 0) {
-                    this.dom.resultsBody.innerHTML = '<tr><td colspan="9">No tracking data available</td></tr>';
-                    return;
-                }
-                
-                this.dom.resultsBody.innerHTML = trackingResults.map(result => `
-                    <tr>
-                        <td>${new Date(result.timestamp).toLocaleString()}</td>
-                        <td>${result.ip}</td>
-                        <td>${result.country}</td>
-                        <td>${result.city}</td>
-                        <td>
-                            ${result.latitude && result.longitude 
-                                ? `<button class="view-map-btn" 
-                                     data-lat="${result.latitude}" 
-                                     data-lon="${result.longitude}">
-                                     View Map
-                                   </button>`
-                                : 'No coordinates'}
-                        </td>
-                        <td>${result.device}</td>
-                        <td>${result.browser}</td>
-                        <td>${this.shortenReferrer(result.referrer)}</td>
-                        <td>
-                            ${result.locationDetails && result.locationDetails.address
-                                ? `${result.locationDetails.address.road || ''} 
-                                   ${result.locationDetails.address.house_number || ''}`
-                                : ''}
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            /**
-             * Shorten referrer URL for display
-             */
-            shortenReferrer(referrer) {
-                if (referrer === 'Direct') return referrer;
-                
-                try {
-                    const url = new URL(referrer);
-                    return url.hostname;
-                } catch {
-                    return referrer;
-                }
-            }
-
-            /**
-             * Show map modal
-             */
-            showMapModal(lat, lon) {
-                const modal = document.createElement('div');
-                modal.className = 'modal map-modal';
-                modal.innerHTML = `
-                    <div class="modal-content">
-                        <span class="close-modal">&times;</span>
-                        <iframe
-                            width="100%"
-                            height="500"
-                            frameborder="0"
-                            scrolling="no"
-                            marginheight="0"
-                            marginwidth="0"
-                            src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}">
-                        </iframe>
-                        <small>
-                            <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}" target="_blank">
-                                View Larger Map
-                            </a>
-                        </small>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-
-            /**
-             * Clear all tracking data
-             */
-            clearTrackingData() {
-                if (confirm('Are you sure you want to clear all tracking data? This cannot be undone.')) {
-                    localStorage.removeItem('trackingResults');
-                    localStorage.removeItem('trackingLinks');
-                    this.loadTrackingResults();
-                }
-            }
-
-            /**
-             * Get device information
-             */
-            getDeviceInfo() {
-                const userAgent = navigator.userAgent;
-                if (/mobile/i.test(userAgent)) {
-                    return 'Mobile';
-                } else if (/tablet/i.test(userAgent)) {
-                    return 'Tablet';
-                } else {
-                    return 'Desktop';
-                }
-            }
-
-            /**
-             * Get browser information
-             */
-            getBrowserInfo() {
-                const userAgent = navigator.userAgent;
-                
-                if (userAgent.indexOf('Firefox') > -1) return 'Firefox';
-                if (userAgent.indexOf('Safari') > -1 && userAgent.indexOf('Chrome') === -1) return 'Safari';
-                if (userAgent.indexOf('Chrome') > -1 && userAgent.indexOf('Edg') === -1) return 'Chrome';
-                if (userAgent.indexOf('Edg') > -1) return 'Edge';
-                if (userAgent.indexOf('MSIE') > -1 || userAgent.indexOf('Trident/') > -1) return 'IE';
-                if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) return 'Opera';
-                
-                return 'Unknown';
-            }
-
-            /**
-             * Get item from localStorage with parsing
-             */
-            getStorageItem(key) {
-                try {
-                    return JSON.parse(localStorage.getItem(key)) || null;
-                } catch (e) {
-                    console.error('Error parsing storage item:', e);
-                    return null;
-                }
-            }
-
-            /**
-             * Set item in localStorage with stringification
-             */
-            setStorageItem(key, value) {
-                try {
-                    localStorage.setItem(key, JSON.stringify(value));
-                } catch (e) {
-                    console.error('Error storing item:', e);
-                }
-            }
-
-            /**
-             * Generate a unique ID
-             */
-            generateId() {
-                return 'id_' + Math.random().toString(36).substr(2, 9);
-            }
+    // Password Protection
+    const ADMIN_PASSWORD = "tracker123"; // Change this to your password
+    
+    function checkPassword() {
+        const input = document.getElementById('password-input').value;
+        if (input === ADMIN_PASSWORD) {
+            document.getElementById('password-protect').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            loadTrackingData();
+        } else {
+            alert('Incorrect password');
         }
-
-        // Initialize the tracker when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            new AdvancedUrlTracker();
+    }
+    
+    // Load tracking data
+    function loadTrackingData() {
+        const data = JSON.parse(localStorage.getItem('tracking_data') || '[]');
+        const tbody = document.querySelector('#data-table tbody');
+        
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td>${new Date(item.timestamp).toLocaleString()}</td>
+                <td>${item.ip}</td>
+                <td><a href="${item.targetUrl}" target="_blank">${shortenUrl(item.targetUrl)}</a></td>
+                <td>${shortenReferrer(item.referrer)}</td>
+                <td>${getDeviceType(item.userAgent)}</td>
+                <td>${item.cameraData ? `<button onclick="showImage('${item.cameraData}')">View</button>` : 'No capture'}</td>
+            </tr>
+        `).join('');
+    }
+    
+    function shortenUrl(url) {
+        try {
+            const u = new URL(url);
+            return u.hostname + (u.pathname !== '/' ? u.pathname.substring(0, 15) + (u.pathname.length > 15 ? '...' : '') : '');
+        } catch {
+            return url.substring(0, 30) + (url.length > 30 ? '...' : '');
+        }
+    }
+    
+    function shortenReferrer(referrer) {
+        if (referrer === 'Direct') return referrer;
+        try {
+            const u = new URL(referrer);
+            return u.hostname;
+        } catch {
+            return referrer.substring(0, 20) + (referrer.length > 20 ? '...' : '');
+        }
+    }
+    
+    function getDeviceType(userAgent) {
+        if (/mobile/i.test(userAgent)) return '📱 Mobile';
+        if (/tablet/i.test(userAgent)) return '🖥 Tablet';
+        return '💻 Desktop';
+    }
+    
+    function showImage(imageData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <h3>Camera Capture</h3>
+                <img src="${imageData}" class="camera-image" alt="Camera capture">
+                <p><button onclick="downloadImage('${imageData}')">Download Image</button></p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    function downloadImage(imageData) {
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = `capture-${new Date().getTime()}.jpg`;
+        link.click();
+    }
+    
+    // Generate tracking URL
+    document.getElementById('generate-btn').addEventListener('click', function() {
+        const targetUrl = document.getElementById('target-url').value.trim();
+        if (!targetUrl) {
+            alert('Please enter a URL');
+            return;
+        }
+        
+        try {
+            new URL(targetUrl);
+        } catch {
+            alert('Invalid URL format');
+            return;
+        }
+        
+        const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
+        const encodedUrl = encodeURIComponent(targetUrl);
+        const trackingUrl = `${window.location.origin}/?track=${trackingId}&target=${encodedUrl}`;
+        
+        document.getElementById('result').innerHTML = `
+            <p><strong>Tracking URL:</strong></p>
+            <input type="text" value="${trackingUrl}" style="width: 100%; padding: 8px; margin-bottom: 10px;" readonly>
+            <button onclick="copyToClipboard()">Copy URL</button>
+            <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                When someone clicks this link, it will silently capture their camera (if available) and redirect to the target URL.
+            </p>
+        `;
+    });
+    
+    function copyToClipboard() {
+        const input = document.querySelector('#result input');
+        input.select();
+        document.execCommand('copy');
+        alert('URL copied to clipboard!');
+    }
+    
+    // Control buttons
+    document.getElementById('refresh-btn').addEventListener('click', loadTrackingData);
+    
+    document.getElementById('export-btn').addEventListener('click', function() {
+        const data = JSON.parse(localStorage.getItem('tracking_data') || '[]');
+        let csv = 'Timestamp,IP Address,Target URL,Referrer,Device,Screen\n';
+        
+        data.forEach(item => {
+            csv += `"${new Date(item.timestamp).toLocaleString()}","${item.ip}","${item.targetUrl}","${item.referrer}","${getDeviceType(item.userAgent)}","${item.screen}"\n`;
         });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tracking-data-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    });
+    
+    document.getElementById('clear-btn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to delete ALL tracking data? This cannot be undone.')) {
+            localStorage.removeItem('tracking_data');
+            loadTrackingData();
+        }
+    });
+    
+    // Auto-focus password input
+    document.getElementById('password-input').focus();
     </script>
 </body>
 </html>
