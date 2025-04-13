@@ -203,7 +203,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0,0,0,0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -463,11 +463,8 @@
 
     // Set up all event listeners
     function setupEventListeners() {
-        // Fixed: Properly attach click event to generate button
-        elements.generateBtn.addEventListener('click', function() {
-            generateTrackingUrl();
-        });
-        
+        // Fixed generate button event listener
+        elements.generateBtn.addEventListener('click', generateTrackingUrl);
         elements.copyBtn.addEventListener('click', copyToClipboard);
         elements.refreshBtn.addEventListener('click', loadTrackingResults);
         elements.clearBtn.addEventListener('click', clearAllData);
