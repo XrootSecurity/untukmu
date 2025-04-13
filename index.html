@@ -463,7 +463,11 @@
 
     // Set up all event listeners
     function setupEventListeners() {
-        elements.generateBtn.addEventListener('click', generateTrackingUrl);
+        // Fixed: Properly attach click event to generate button
+        elements.generateBtn.addEventListener('click', function() {
+            generateTrackingUrl();
+        });
+        
         elements.copyBtn.addEventListener('click', copyToClipboard);
         elements.refreshBtn.addEventListener('click', loadTrackingResults);
         elements.clearBtn.addEventListener('click', clearAllData);
@@ -475,8 +479,8 @@
         });
     }
 
-    // Generate Tracking URL
-    async function generateTrackingUrl() {
+    // Generate Tracking URL - Fixed function
+    function generateTrackingUrl() {
         const targetUrl = elements.targetUrlInput.value.trim();
         
         if (!targetUrl) {
@@ -498,10 +502,12 @@
         elements.trackingResult.style.display = 'block';
         
         // Save to Firebase
-        await database.ref('trackingLinks/' + trackingId).set({
+        database.ref('trackingLinks/' + trackingId).set({
             targetUrl: targetUrl,
             createdAt: firebase.database.ServerValue.TIMESTAMP,
             clickCount: 0
+        }).catch(error => {
+            console.error('Error saving to Firebase:', error);
         });
     }
 
