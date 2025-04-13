@@ -357,7 +357,7 @@
         }
         
         const trackingId = 'trk_' + Math.random().toString(36).substr(2, 9);
-        const trackingUrl = window.location.origin + window.location.pathname + '?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
+        const trackingUrl = window.location.origin + '?track=' + trackingId + '&target=' + encodeURIComponent(targetUrl);
         
         trackingUrlInput.value = trackingUrl;
         trackingResult.style.display = 'block';
